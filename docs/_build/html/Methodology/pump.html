@@ -1,0 +1,220 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Pump &#8212; ntpSystem 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="References" href="turbine.html" />
+    <link rel="prev" title="Turbopump" href="turbopump.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="pump">
+<span id="meth-pump"></span><h1>Pump<a class="headerlink" href="#pump" title="Permalink to this heading">¶</a></h1>
+<p>The below methodology defines equations for the pump efficiency generation, primarily focusing on the
+loss factors that prohibits an efficiency, <span class="math notranslate nohighlight">\(\eta\)</span>, of 1. The equations described were obtained from
+<a class="reference internal" href="#pump-references"><span class="std std-ref">Balje, Nichols, McPherson</span></a>. The main terms needed to describe a turbopump are known as the
+similarity parameters, which are represented by <span class="math notranslate nohighlight">\(N_s\)</span>, specific speed, <span class="math notranslate nohighlight">\(D_s\)</span>, specific diameter, <span class="math notranslate nohighlight">\(S\)</span>, suction
+specific speed, and <span class="math notranslate nohighlight">\(R_{e}^*\)</span>, the pump Reynolds number. It should be noted that the reference listed utilizes
+imperial units for calculations.</p>
+<div class="math notranslate nohighlight">
+\[N_s = \frac{N \sqrt{Q}}{H^{\frac{3}{4}}}\]</div>
+<p>The parameters for the specific speed are <span class="math notranslate nohighlight">\(N\)</span>, the desired rotative speed, <span class="math notranslate nohighlight">\(Q\)</span>, the volumetric flow rate,
+and <span class="math notranslate nohighlight">\(H\)</span>, the head rise. Additionally, the general form of the specific diameter is represented with the
+impeller diameter, <span class="math notranslate nohighlight">\(D\)</span>, as well.</p>
+<div class="math notranslate nohighlight">
+\[D_s = \frac{D H^{\frac{1}{4}}}{\sqrt{Q}}\]</div>
+<p>Furthermore, the pump reynolds number utilizes the fluid density, <span class="math notranslate nohighlight">\(\rho\)</span>, absolute viscosity, <span class="math notranslate nohighlight">\(\mu\)</span>, and <span class="math notranslate nohighlight">\(U\)</span>
+which is a term described as proportional to the product of the impeller diameter and the desired rotative speed.</p>
+<div class="math notranslate nohighlight">
+\[R_{e}^* = \frac{D U \rho}{\mu}\]</div>
+<p>Finally, the pump specific speed is described by <a class="reference internal" href="#pump-references"><span class="std std-ref">Balje, Nichols, McPherson</span></a>
+using <span class="math notranslate nohighlight">\(H_{SV}\)</span> which is utilized for cavitation, but in this scenario can be ignored and treated as <span class="math notranslate nohighlight">\(H\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[S = \frac{N \sqrt{Q}}{H^{\frac{1}{4}}}\]</div>
+<p>Additional terms such as the blade number, <span class="math notranslate nohighlight">\(Z\)</span> are also utilized in further calculations using <span class="math notranslate nohighlight">\(d\)</span> which is
+the eye diameter as well as <span class="math notranslate nohighlight">\(\beta_2\)</span> and <span class="math notranslate nohighlight">\(\beta_1\)</span> which are the blade outlet and inlet angles, respectively.</p>
+<div class="math notranslate nohighlight">
+\[Z = k(\frac{D_2 + d}{D_2 - d})sin(\frac{\beta_1 + \beta_2}{2})\]</div>
+<div class="math notranslate nohighlight">
+\[k = 10sin(\frac{\beta_1 + \beta_2}{2})\]</div>
+<p>The overall efficiency is represented by the ratio of outlet and inlet head coefficients:
+<span class="math notranslate nohighlight">\(q_{th}\)</span>, theoretical head coefficient,
+<span class="math notranslate nohighlight">\(q_{il}\)</span>, impellor loss,
+<span class="math notranslate nohighlight">\(q_{ad}\)</span>, annular diffuser,
+<span class="math notranslate nohighlight">\(q_{sc}\)</span>, scroll,
+<span class="math notranslate nohighlight">\(q_{sd}\)</span>, straight diffuser,
+<span class="math notranslate nohighlight">\(q_m\)</span>, mixing,
+<span class="math notranslate nohighlight">\(q_{df}\)</span>, disc friction,
+<span class="math notranslate nohighlight">\(q_{rf}\)</span>, wear-ring friction, and
+<span class="math notranslate nohighlight">\(q_{rl}\)</span>, wear-ring leakage.</p>
+<div class="math notranslate nohighlight">
+\[\eta = \frac{q_{out}}{q_{in}} = \frac{q_{th} - q_{il} - q_{ad} - q_{sc} - q_{sd} - q_m}{q_{th} + q_{df} + q_{rf} + q_{rl}}\]</div>
+<div class="math notranslate nohighlight">
+\[q_{th} = \frac{.95(1 - K_1 \phi cot\beta_2)}{1 + \frac{1 + .6sin\beta_2}{.5Z(1-.2833\delta)}}\]</div>
+<p>Here, the denominator is denoted by <span class="math notranslate nohighlight">\(m\)</span> which is known as the slip factor. Additionally, <span class="math notranslate nohighlight">\(C_{m1}\)</span>
+and <span class="math notranslate nohighlight">\(C_{m2}\)</span> are the meridional velocities at the impeller inlet and outlet, respectively.</p>
+<div class="math notranslate nohighlight">
+\[K_1 = \frac{C_{m2}}{C_{m1}}\]</div>
+<div class="math notranslate nohighlight">
+\[\phi = \frac{C_{m1}}{U_2}\]</div>
+<div class="math notranslate nohighlight">
+\[\delta = \frac{d}{D_2}\]</div>
+<p>Furthermore, the head coefficients are further defined using <span class="math notranslate nohighlight">\(\tau\)</span> which is the ratio of the hub diameter,
+<span class="math notranslate nohighlight">\(d_h\)</span>, to the eye diameter, as well as <span class="math notranslate nohighlight">\(\frac{t}{D}\)</span> which is the ratio of the hub diameter to the eye diameter.</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}q_{il} = \frac{.0264 \phi^{1.75} [1 - \delta (\frac{1 + \tau^2}{2})^{\frac{1}{2}}] \
+(\frac{K_{1}^{2} + K_1 +1}{3})^{1.5}}{sin^{4} \beta_2 R_{e}^{* \frac{1}{4}} (1 - \tau^{2})^{1.25}} \
+(Z[\frac{ 2(\pi J - Z \frac{t}{D})sin \beta }{Z \delta^2}\\+ \frac{ \pi(1-\tau^2) }{ 2(\frac{K_{1}^2 + K_1 + 1}{3})^{\frac{1}{2}} (\pi J - Z \frac{t}{D}) }])^{1.25} \
++ \frac{N_{id}}{2} [\phi^2 (1 - \frac{K_{1}^2}{sin^2 \beta_2}) + \delta^2]\end{aligned}\end{align} \]</div>
+<div class="math notranslate nohighlight">
+\[J = \frac{1 - \delta (\frac{1 + \tau^2}{2})^\frac{1}{2}}{K_1 - 1}[(\frac{K_{1}^2 + K_1 + 1}{3})^\frac{1}{2} - 1] \
++ \delta(\frac{1 + \tau^2}{2})^\frac{1}{2}\]</div>
+<p>The equations for the head coefficients continue with that occuring due to the annular diffuser utilizing <span class="math notranslate nohighlight">\(\lambda\)</span>, the ratio of
+the outer diameter to the inner diameter of the annular diffuser.</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}q_{ad} = \frac{.0854 \phi^{1.75} (\lambda - 1) }{R_{e}^{* \frac{1}{4}} \delta^{2.5}} \
+[1 + \frac{1}{m^2} (\frac{1}{\phi K_1} -\\\frac{1}{tan\beta_2})^2]^{1.375}(\frac{1}{\lambda^2} + \frac{1}{\lambda} + 1)^{.375} \
+K_{1}^{3}[1 - \frac{q_{rl}}{q_{th}}]^{1.75}\end{aligned}\end{align} \]</div>
+<p>The remaining numerator head loss coefficients are <span class="math notranslate nohighlight">\(q_{sc}\)</span>, <span class="math notranslate nohighlight">\(q_{sd}\)</span>, and <span class="math notranslate nohighlight">\(q_m\)</span> which are the head loss coefficients
+for the scroll, straight diffuser, and mixing, respectively.</p>
+<div class="math notranslate nohighlight">
+\[q_{sc} = \frac{.155 \phi^{1.75} (1 - \frac{q_{rl}}{q_{th}})^{1.75} K_{1}^{2.375}}{\delta^{1.25} \
+{R_{e}^{* \frac{1}{4}}(1 - \tau^2) \lambda^{1.4375}}}[1 + \frac{1}{m^2}(\frac{1}{\phi K_1} - cot\beta_2)^2]^{1.188}\]</div>
+<div class="math notranslate nohighlight">
+\[q_{sd} = \frac{\phi^2 (1 - \eta_{sd})}{2}(1 - \frac{q_{rl}}{q_{th}})^2(\frac{K_{1}^2 [1 + \frac{1}{m^2}(\frac{1}{\phi K_1} \
+- cot\beta_2)^2]}{(\lambda + 2[\frac{m (1 - \tau^2) \delta^2}{4 K_1 (\frac{1}{\phi K_1} - cot\beta_2)} + \
+(\frac{m \lambda (1 - \tau^2) \delta^2}{4 K_1 (\frac{1}{\phi K_1} - cot\beta_2)})^{\frac{1}{2}}])^2} - 1)\]</div>
+<div class="math notranslate nohighlight">
+\[q_m = .125(1 - \frac{1}{m})^2\]</div>
+<p>The remaining pump head loss coefficients are representative of the shaft power.</p>
+<div class="math notranslate nohighlight">
+\[q_{rl} = \frac{2 K_1 q_{th}}{\phi (1 - \tau^2)(\frac{k_2}{k_1} f + 1.5)^\frac{1}{2}}(2[q_{th} - q_{il} - \frac{1}{2 m^2} (1 + \
+\frac{K_{1}^2 \phi^2}{sin^2 \beta_2} - \frac{2 K_1}{tan\beta_2} ) - \frac{1 - \delta^2}{8} ])^\frac{1}{2}\]</div>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}f = \frac{.316}{R_{e}^{* \frac{1}{4}}}\\k_2 = \frac{b}{d} = \frac{b}{2R_1}\\k_1 = \frac{2 \Lambda}{d}\end{aligned}\end{align} \]</div>
+<p>Here, <span class="math notranslate nohighlight">\(f\)</span> represents the friction factor and <span class="math notranslate nohighlight">\(k\)</span> is the clearance width ratio with parameters <span class="math notranslate nohighlight">\(b\)</span>, width [ft],
+<span class="math notranslate nohighlight">\(R\)</span>, pump radius, <span class="math notranslate nohighlight">\(\Lambda\)</span>, and wear-ring clearance.</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}q_{df} = \frac{2.2(1 - \delta^2)}{\phi \delta^2 (1 - \tau^2)}\\
+q_{rf} = \frac{8k_2}{ln(\frac{1}{1 + k_1})R_{e}^{*} \phi \delta (1 - \tau^2)}\end{aligned}\end{align} \]</div>
+<p>In order to fully utilize these parameters for system development there must be optimization of the combined terms.
+By combining the below terms and substituting into the above equations develops an expression for efficiency that can
+be used for the development of the pump system.</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}\Psi = \delta[\phi (1 - \tau^2)]^\frac{1}{2}\\q_{out} = \frac{11.75}{N_{s}^2 D_{s}^2}\\\Psi = \frac{4.85}{N_{s}^{\frac{1}{2}} D_{s}^{\frac{3}{2}}}\\N_s = 228.5 \frac{\Psi}{q_{out}^{\frac{3}{4}}}\\D_s = .473 \frac{q_{out}^{\frac{1}{4}}}{\Psi}\\\delta = \frac{\psi}{[\phi(1 - \tau^2)]^{\frac{1}{2}}}\end{aligned}\end{align} \]</div>
+</section>
+<section id="references">
+<span id="pump-references"></span><h1>References<a class="headerlink" href="#references" title="Permalink to this heading">¶</a></h1>
+<p>O. E. Balje, K. E. Nichols, and D. G. McPherson, “Study of Turbine and Turbopump Design Parameters,” final report, vol. 4,
+“Low Specific Speed Turbopump Study, S / T D No. 17.35,” Department
+of the Navy, Office of Naval Research, Contract No. NONR 2292</p>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">ntpSystem</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Project Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributors.html">Developer Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Manual/index.html">User’s Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../develop/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Methodology</a><ul>
+      <li>Previous: <a href="turbopump.html" title="previous chapter">Turbopump</a></li>
+      <li>Next: <a href="turbine.html" title="next chapter">References</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Dan Kotlyar.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/Methodology/pump.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

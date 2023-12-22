@@ -1,0 +1,476 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Interface to the Property Table and Data &#8212; ntpSystem 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Methodology" href="../Methodology/index.html" />
+    <link rel="prev" title="Decay Case" href="decay.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="interface-to-the-property-table-and-data">
+<span id="propertytable"></span><h1>Interface to the Property Table and Data<a class="headerlink" href="#interface-to-the-property-table-and-data" title="Permalink to this heading">¶</a></h1>
+<section id="description">
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this heading">¶</a></h2>
+<p>Interface into pre-generated <strong>mono</strong>- or <strong>multi-dimensional</strong> property
+tables.</p>
+<p>Provides a very simple look-up table like interface into standard
+thermophysical tables. Assumes a specific structure of the data stored
+in a hierarchical data format (HDF) file. Is designated to be used for
+the purpose of NTP thermal analyses.</p>
+</section>
+<section id="id1">
+<h2>PropertyTable<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
+<p>The following section provides the <strong>inputs, returns, and the methods</strong>
+of the <code class="docutils literal notranslate"><span class="pre">PropertyTable</span></code> class</p>
+<section id="inputs">
+<h3>Inputs:<a class="headerlink" href="#inputs" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">h5path</span></code> : Full path for the hdf5 file</p></li>
+</ul>
+</section>
+<section id="methods">
+<h3>Methods:<a class="headerlink" href="#methods" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">read</span></code> : read the property data set of a specific material</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">getref</span></code> : obtain the reference for the material database</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">materials</span></code>: obtain a list of all the materials in the database</p></li>
+</ul>
+</section>
+<section id="execute">
+<h3>Execute<a class="headerlink" href="#execute" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ntpThermo.functions.propertytable</span> <span class="kn">import</span> <span class="n">PropertyTable</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Read the database and store in table</span>
+<span class="n">table</span> <span class="o">=</span> <span class="n">PropertyTable</span><span class="p">(</span><span class="s2">&quot;../database/ThermoPhysicalProperties.h5&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="the-materials-method">
+<h2>The <code class="docutils literal notranslate"><span class="pre">materials</span></code> method<a class="headerlink" href="#the-materials-method" title="Permalink to this heading">¶</a></h2>
+<p><strong>Obtains all the materials included in the datafile</strong></p>
+<p>This is a useful class if the user is not aware of the materials
+included in the datafile.</p>
+<section id="returns">
+<h3>Returns:<a class="headerlink" href="#returns" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">list</span></code>: all the materials in the database</p></li>
+</ul>
+</section>
+<section id="id2">
+<h3>Execute<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">materials</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;H2&#39;</span><span class="p">,</span> <span class="s1">&#39;Molybdenum&#39;</span><span class="p">,</span> <span class="s1">&#39;Tungsten&#39;</span><span class="p">,</span> <span class="s1">&#39;UC&#39;</span><span class="p">,</span> <span class="s1">&#39;UN&#39;</span><span class="p">,</span> <span class="s1">&#39;UO2&#39;</span><span class="p">,</span> <span class="s1">&#39;Zircaloy&#39;</span><span class="p">,</span> <span class="s1">&#39;ZrC&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="the-getref-method">
+<h2>The <code class="docutils literal notranslate"><span class="pre">getref</span></code> method<a class="headerlink" href="#the-getref-method" title="Permalink to this heading">¶</a></h2>
+<p><strong>Return the reference for a specific material</strong></p>
+<section id="id3">
+<h3>Inputs:<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mat</span></code> : string, name of the material in the databse, e.g. “H2”</p></li>
+</ul>
+</section>
+<section id="example">
+<h3>Example:<a class="headerlink" href="#example" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="o">.</span><span class="n">getref</span><span class="p">(</span><span class="s2">&quot;H2&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h3>Execute<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">table</span><span class="o">.</span><span class="n">getref</span><span class="p">(</span><span class="s2">&quot;H2&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;NASA, 1993. Computer Program for Thermal and Transport Properties of Para Hydrogen from 20 to 10000 K, NASA Lewis Research Center. NASA-TP-3378. NASA, Space Technology Mission Directorate Game Changing Development Program, FY19 Annual Review https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20190031810.pdf&#39;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="the-read-method">
+<h2>The <code class="docutils literal notranslate"><span class="pre">read</span></code> method<a class="headerlink" href="#the-read-method" title="Permalink to this heading">¶</a></h2>
+<p><strong>Obtain a complete data set for a specific material.</strong></p>
+<section id="id5">
+<h3>Inputs:<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mat</span></code> : string, name of the material in the databse, e.g. “H2”</p></li>
+</ul>
+</section>
+<section id="examples">
+<h3>Examples:<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">PropertyTable</span><span class="p">(</span><span class="s2">&quot;ThermoPhysicalProperties.h5)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">H2</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;H2&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">UO2</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;UO2&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id6">
+<h3>Execute:<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">H2</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;H2&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="propertydata">
+<h2>PropertyData<a class="headerlink" href="#propertydata" title="Permalink to this heading">¶</a></h2>
+<p>The following section provides the <strong>inputs, returns, and the methods</strong>
+of the <code class="docutils literal notranslate"><span class="pre">PropertyData</span></code> class</p>
+<section id="id7">
+<h3>Inputs:<a class="headerlink" href="#id7" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">matset</span></code> : hdf5 data field</p></li>
+</ul>
+</section>
+<section id="id8">
+<h3>Methods:<a class="headerlink" href="#id8" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">evaluate</span></code> : obtain a specific property value</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot</span></code> : plot a property value and the data points from the table</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">whatis</span></code> : description of the parameter with its units</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">properties</span></code>: obtain a list of all the available properties</p></li>
+</ul>
+</section>
+<section id="id9">
+<h3>Execute<a class="headerlink" href="#id9" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ntpThermo.functions.propertytable</span> <span class="kn">import</span> <span class="n">PropertyData</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">H2</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;H2&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="the-propertynames-method">
+<h2>The <code class="docutils literal notranslate"><span class="pre">propertynames</span></code> method<a class="headerlink" href="#the-propertynames-method" title="Permalink to this heading">¶</a></h2>
+<p><strong>Print all the available properties for a specific material</strong></p>
+<section id="id10">
+<h3>Execute<a class="headerlink" href="#id10" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">H2</span><span class="o">.</span><span class="n">propertynames</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;cp&#39;</span><span class="p">,</span> <span class="s1">&#39;cv&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="s1">&#39;my&#39;</span><span class="p">,</span> <span class="s1">&#39;pr&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;tc&#39;</span><span class="p">,</span> <span class="s1">&#39;v&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="the-whatis-method">
+<h2>The <code class="docutils literal notranslate"><span class="pre">whatis</span></code> method<a class="headerlink" href="#the-whatis-method" title="Permalink to this heading">¶</a></h2>
+<p><strong>Return information on a specific property</strong></p>
+<section id="id11">
+<h3>Inputs:<a class="headerlink" href="#id11" title="Permalink to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">pty</span></code> : string, name of the thermal property, e.g. “tc” thermal
+conductivity</p>
+</section>
+<section id="id12">
+<h3>Execute<a class="headerlink" href="#id12" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">H2</span><span class="o">.</span><span class="n">whatis</span><span class="p">(</span><span class="s2">&quot;tc&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Units</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Thermal Conductivity&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;W/m/K&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">h</span> <span class="o">=</span> <span class="n">H2</span><span class="o">.</span><span class="n">whatis</span><span class="p">(</span><span class="s2">&quot;tc&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">units</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Thermal</span> <span class="n">Conductivity</span>
+<span class="n">W</span><span class="o">/</span><span class="n">m</span><span class="o">/</span><span class="n">K</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="the-evaluate-method">
+<h2>The <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> method<a class="headerlink" href="#the-evaluate-method" title="Permalink to this heading">¶</a></h2>
+<p><strong>Evaluate a specific property for given temperature and/or pressure.</strong></p>
+<p>Pressure and/or temperatures can be provided as arguments, or by name.
+If just the temperature is used, either directly pass a <code class="docutils literal notranslate"><span class="pre">None</span></code>
+pressure, e.g. <code class="docutils literal notranslate"><span class="pre">evaluate(&quot;tc&quot;,</span> <span class="pre">None,</span> <span class="pre">600)</span></code> or use named arguments with
+<code class="docutils literal notranslate"><span class="pre">evaluate(&quot;tc&quot;,</span> <span class="pre">temperature=600)</span></code>. Similarly for just pressure, but
+the option also exists to not pass anything as well, e.g.
+<code class="docutils literal notranslate"><span class="pre">evalute(&quot;tc&quot;,</span> <span class="pre">20)</span></code></p>
+<section id="id13">
+<h3>Inputs:<a class="headerlink" href="#id13" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pty</span></code> : string, name of the thermal property, e.g. “tc” thermal
+conductivity</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pressure</span></code> : float, optional, pressure in MPa</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code> : float, optional, temperature in Kelvin</p></li>
+</ul>
+</section>
+<section id="notes">
+<h3>Notes:<a class="headerlink" href="#notes" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>2-D interpolation is allowed for temperature and pressure.</p></li>
+<li><p>1-D interpolation is allowed only for temperature.</p></li>
+</ul>
+</section>
+<section id="id14">
+<h3>Execute:<a class="headerlink" href="#id14" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">table</span> <span class="o">=</span> <span class="n">PropertyTable</span><span class="p">(</span><span class="s2">&quot;../database/ThermoPhysicalProperties.h5&quot;</span><span class="p">)</span>
+<span class="n">H2</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;H2&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">H2</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;tc&quot;</span><span class="p">,</span> <span class="n">pressure</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">1754</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">H2</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;cp&quot;</span><span class="p">,</span> <span class="n">pressure</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">1754</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">0.7120571</span>
+<span class="mf">16535.7</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="the-plot-method">
+<h2>The <code class="docutils literal notranslate"><span class="pre">plot</span></code> method<a class="headerlink" href="#the-plot-method" title="Permalink to this heading">¶</a></h2>
+<p><strong>Comparative plot for the value of a specific property.</strong></p>
+<section id="id15">
+<h3>Inputs:<a class="headerlink" href="#id15" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pty</span></code> : string, name of the thermal property, e.g. “tc” thermal
+conductivity</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pressure</span></code> : float, optional, pressure in MPa</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code> : float, optional, temperature in Kelvin</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">desc</span></code> : str, optional, description of the property. Default value
+is read through the whatis method.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">units</span></code> : str, optional, description of the property’s units.
+Default value is read through the whatis method.</p></li>
+</ul>
+</section>
+<section id="id16">
+<h3>Execute:<a class="headerlink" href="#id16" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">H2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">&quot;tc&quot;</span><span class="p">,</span> <span class="n">pressure</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">557</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/propertytable_108_0.png" src="../_images/propertytable_108_0.png" />
+</section>
+</section>
+<section id="the-mixbinary-method">
+<h2>The <code class="docutils literal notranslate"><span class="pre">mixbinary</span></code> method<a class="headerlink" href="#the-mixbinary-method" title="Permalink to this heading">¶</a></h2>
+<p><strong>Evaluate a weighted value for a binary mixture.</strong></p>
+<p>The method evaluates the weighted property given two values that
+represent the same property for two materials given a certain weight
+fraction at a specific temperature and/or pressure .</p>
+<section id="methodology-weighted-properties-for-binary-systems">
+<h3>Methodology: weighted properties for binary systems<a class="headerlink" href="#methodology-weighted-properties-for-binary-systems" title="Permalink to this heading">¶</a></h3>
+<div class="line-block">
+<div class="line">There are several options to weight the properties of binary mixtures.</div>
+<div class="line"><strong>1. Serial:</strong></div>
+</div>
+<p><span class="math notranslate nohighlight">\(\begin{align}
+\begin{split}
+z = w\times z_1 + (1-w)\times z_2
+\end{split}
+\end{align}\)</span></p>
+<p><strong>2. Parallel:</strong></p>
+<p><span class="math notranslate nohighlight">\(\begin{align}
+\begin{split}
+z = \left( \frac{w}{z_1} + \frac{1-w}{z_2}  \right)^{-1}
+\end{split}
+\end{align}\)</span></p>
+<p>where <span class="math notranslate nohighlight">\(w\)</span> is the weight fraction for material of type 1 having a
+property (e.g. conductivity) value of <span class="math notranslate nohighlight">\(z_1\)</span>. The property value
+for material 2 is <span class="math notranslate nohighlight">\(z_2\)</span>.</p>
+<p>There is a third option that is used to weight the properties when
+particles (e.g. UO:math:<cite>_2</cite>) are embedded within a matrix material,
+such as tungsten.</p>
+<p><strong>3. Bruggeman–Fricke methodology</strong></p>
+<p><span class="math notranslate nohighlight">\(\begin{align}
+\begin{split}
+z = z_1 + (1-w)(z_2-z_1)\left(\frac{z_1}{z_2} \right)^{1/3}
+\end{split}
+\end{align}\)</span></p>
+<p>where <span class="math notranslate nohighlight">\(w\)</span> is the volume fraction for the particles’ material
+having a property value of <span class="math notranslate nohighlight">\(z_1\)</span>. The property value for the
+matrix material is <span class="math notranslate nohighlight">\(z_2\)</span>.</p>
+</section>
+<section id="id17">
+<h3>Inputs:<a class="headerlink" href="#id17" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">val1</span></code> : float, value for material of type 1, e.g. thermal
+conductivity for Tungsten</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">val2</span></code> : float, value for material of type 2, e.g. thermal
+conductivity for Moly</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">w1</span></code> : float, weight fraction of material-1</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">method</span></code> : string, weighting method, e.g. “parallel”</p></li>
+</ul>
+</section>
+<section id="id18">
+<h3>Notes:<a class="headerlink" href="#id18" title="Permalink to this heading">¶</a></h3>
+<p>The Bruggeman-Fricke weighting method assumes that <code class="docutils literal notranslate"><span class="pre">val1</span></code> represent
+the particles, <code class="docutils literal notranslate"><span class="pre">val2</span></code> represent the matrix, and <code class="docutils literal notranslate"><span class="pre">w1</span></code> is the volume
+fraction of the particles in the matrix.</p>
+</section>
+<section id="id19">
+<h3>Execute:<a class="headerlink" href="#id19" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">functions.propertytable</span> <span class="kn">import</span> <span class="n">mixbinary</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mixbinary</span><span class="p">(</span><span class="n">val1</span><span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">val2</span><span class="o">=</span> <span class="mf">4.6</span><span class="p">,</span> <span class="n">w1</span><span class="o">=</span> <span class="mf">0.164</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span> <span class="s2">&quot;Parallel&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">1.9617877857386554</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="summary-example">
+<h2>Summary example<a class="headerlink" href="#summary-example" title="Permalink to this heading">¶</a></h2>
+<p>Obtain the <strong>weighted conductivity</strong> of the UO2 matrix (40% by volume)
+embedded within a tungsten materix</p>
+<p><strong>Read the data</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">PropertyTable</span><span class="p">(</span><span class="s2">&quot;../database/ThermoPhysicalProperties.h5&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Read the thermal conductivity for UO2 and Tungsten</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">UO2</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;UO2&quot;</span><span class="p">)</span>
+<span class="n">Tungsten</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;Tungsten&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Obtain the conductivity values for UO2 and Tungsten</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">valUO2</span> <span class="o">=</span> <span class="n">UO2</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;tc&quot;</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span> <span class="mi">1585</span><span class="p">)</span>
+<span class="n">valW</span> <span class="o">=</span> <span class="n">Tungsten</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;tc&quot;</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span> <span class="mi">1585</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Obtain the weighted value</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">val</span> <span class="o">=</span> <span class="n">mixbinary</span><span class="p">(</span><span class="n">val1</span><span class="o">=</span> <span class="n">valUO2</span><span class="p">,</span> <span class="n">val2</span><span class="o">=</span> <span class="n">valW</span><span class="p">,</span> <span class="n">w1</span><span class="o">=</span> <span class="mf">0.4</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span> <span class="s2">&quot;Bruggeman-Fricke&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Conductivity for UO2 is </span><span class="si">{}</span><span class="s2"> W/mK&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">valUO2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Conductivity for Tungsten is </span><span class="si">{}</span><span class="s2"> W/mK&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">valW</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Weighted conductivity is </span><span class="si">{}</span><span class="s2"> W/mK&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Conductivity</span> <span class="k">for</span> <span class="n">UO2</span> <span class="ow">is</span> <span class="mf">1.78</span> <span class="n">W</span><span class="o">/</span><span class="n">mK</span>
+<span class="n">Conductivity</span> <span class="k">for</span> <span class="n">Tungsten</span> <span class="ow">is</span> <span class="mf">109.14</span> <span class="n">W</span><span class="o">/</span><span class="n">mK</span>
+<span class="n">Weighted</span> <span class="n">conductivity</span> <span class="ow">is</span> <span class="mf">18.1</span> <span class="n">W</span><span class="o">/</span><span class="n">mK</span>
+</pre></div>
+</div>
+<p><strong>Plot results</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">UO2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">&quot;tc&quot;</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">1585</span><span class="p">,</span> <span class="n">desc</span> <span class="o">=</span><span class="s1">&#39;Thermal conductivity&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;W/m/K&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/propertytable_138_0.png" src="../_images/propertytable_138_0.png" />
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Tungsten</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">&quot;tc&quot;</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">1585</span><span class="p">,</span> <span class="n">desc</span> <span class="o">=</span><span class="s1">&#39;Thermal conductivity&#39;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;W/m/K&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/propertytable_139_0.png" src="../_images/propertytable_139_0.png" />
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">ntpSystem</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Project Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributors.html">Developer Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Manual/index.html">User’s Manual</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Methodology/index.html">Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../develop/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Examples</a><ul>
+      <li>Previous: <a href="decay.html" title="previous chapter">Decay Case</a></li>
+      <li>Next: <a href="../Methodology/index.html" title="next chapter">Methodology</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Dan Kotlyar.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/Examples/propertytable.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

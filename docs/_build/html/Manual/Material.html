@@ -1,0 +1,382 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Adding New Materials &#8212; ntpSystem 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Steady state simulation" href="steadystate.html" />
+    <link rel="prev" title="User’s Manual" href="index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="adding-new-materials">
+<span id="newmaterialcard"></span><h1>Adding New Materials<a class="headerlink" href="#adding-new-materials" title="Permalink to this heading">¶</a></h1>
+<p>The user has the option of defining and adding new materials into a data library red by <code class="docutils literal notranslate"><span class="pre">ntpSystem.</span></code>
+The process includes:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#matobject"><span class="std std-ref">Defining a material object</span></a></p></li>
+<li><p><a class="reference internal" href="#addmatobject"><span class="std std-ref">Adding the new object to an existing (or new) library</span></a></p></li>
+<li><p><a class="reference internal" href="#exitinglibrary"><span class="std std-ref">Existing library</span></a> with allowed properties.</p></li>
+<li><p><a class="reference internal" href="#matmanipulate"><span class="std std-ref">Manipulate data before adding to library</span></a> with allowed properties.</p></li>
+</ul>
+<p><a class="reference internal" href="#matfullexample"><span class="std std-ref">A full example is included here</span></a></p>
+<section id="material">
+<span id="matobject"></span><h2>Material<a class="headerlink" href="#material" title="Permalink to this heading">¶</a></h2>
+<p>Define a new material <code class="docutils literal notranslate"><span class="pre">Material</span></code> with all its properties to
+the material object. This function acts as an interface between the <code class="docutils literal notranslate"><span class="pre">material</span></code> and
+<code class="docutils literal notranslate"><span class="pre">propertytable</span></code>.</p>
+<p>Start by importing the following items:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ntpSystem.functions.materials</span> <span class="kn">import</span> <span class="n">Material</span>
+</pre></div>
+</div>
+<p>The <strong>syntax</strong> to define a new material is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">newmat</span> <span class="o">=</span> <span class="n">Material</span><span class="p">(</span><span class="n">matId</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">pressures</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reference</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">matId</span></code> name of the material (str)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">temperatures</span></code> temperature points (array)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pressures</span></code>  Pressure points (array). Optional card.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reference</span></code> reference string. Optional card.</p></li>
+</ul>
+<p>The <strong>object</strong> includes an <code class="docutils literal notranslate"><span class="pre">addproperty</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">newmat</span><span class="o">.</span><span class="n">addproperty</span><span class="p">(</span><span class="n">pty</span><span class="p">,</span> <span class="n">vals</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pty</span></code> name of the property (str)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vals</span></code> values for the specific property 1-D or 2-D array depending on whether only temperature or both temperatures and pressures are provided as dependencies. In the 2-D array the columns represent the temperatures while the rows represent the pressure values.</p></li>
+</ul>
+<p><strong>Example-1</strong>: pressure and temperature dependent properties</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">newmat</span> <span class="o">=</span> <span class="n">Material</span><span class="p">(</span><span class="s2">&quot;newMat&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">300</span><span class="p">,</span> <span class="mi">900</span><span class="p">,</span> <span class="mi">1800</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">10E+6</span><span class="p">,</span> <span class="mf">11E+6</span><span class="p">]))</span>
+<span class="n">newmat</span><span class="o">.</span><span class="n">addproperty</span><span class="p">(</span><span class="s2">&quot;my&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">15.0</span><span class="p">,</span> <span class="mf">13.5</span><span class="p">,</span> <span class="mf">9.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">14.9</span><span class="p">,</span> <span class="mf">13.4</span><span class="p">,</span> <span class="mf">8.9</span><span class="p">]]))</span>
+<span class="n">newmat</span><span class="o">.</span><span class="n">addproperty</span><span class="p">(</span><span class="s2">&quot;tc&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">15.0</span><span class="p">,</span> <span class="mf">13.5</span><span class="p">,</span> <span class="mf">9.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">14.9</span><span class="p">,</span> <span class="mf">13.4</span><span class="p">,</span> <span class="mf">8.9</span><span class="p">]]))</span>
+</pre></div>
+</div>
+<p><strong>Example-2</strong>: only temperature dependent properties</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">UC</span> <span class="o">=</span> <span class="n">Material</span><span class="p">(</span><span class="s2">&quot;UC&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">300</span><span class="p">,</span> <span class="mi">900</span><span class="p">,</span> <span class="mi">1800</span><span class="p">]))</span>
+<span class="n">UC</span><span class="o">.</span><span class="n">addproperty</span><span class="p">(</span><span class="s2">&quot;tc&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">15.0</span><span class="p">,</span> <span class="mf">13.5</span><span class="p">,</span> <span class="mf">9.0</span><span class="p">]))</span>
+</pre></div>
+</div>
+</section>
+<section id="adding-material-object-to-library">
+<span id="addmatobject"></span><h2>Adding Material Object to Library<a class="headerlink" href="#adding-material-object-to-library" title="Permalink to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">ntpSystem</span></code> allows to add a new material set, defined by the <code class="docutils literal notranslate"><span class="pre">Material</span></code> class, to an existing or a new h5 file/database.
+The user has the flexibility to modify or replace the original h5 file. In addition, the user can remove or store the original material sets.</p>
+<p>Start by importing the following items:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ntpSystem.functions.addmaterial</span> <span class="kn">import</span> <span class="n">addMaterial</span>
+</pre></div>
+</div>
+<p>The <strong>syntax</strong> to add the new material to the library is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">addMaterial</span><span class="p">(</span><span class="n">material</span><span class="p">,</span> <span class="n">newFile</span><span class="p">,</span> <span class="n">origFile</span><span class="p">,</span> <span class="n">overwrtFile</span><span class="p">,</span>
+      <span class="n">copyMat</span><span class="p">,</span> <span class="n">copyName</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">material</span></code> : Material object that contains the information about a certain material. Includes temperature-pressure dependencies, properties (e.g. tc), and material Id</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">newFile</span></code> : str name of the new h5 data file to store all the materials</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">origFile</span></code> : str, optional name of the original h5 data file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">overwrtFile</span></code> : bool, optional a flag to indicate whether the original file must be overwritten. False as default. This parameter acts as a layer of protection in case newFile already exists. In such a case, overwrtFile must be set to True, otherwise an error will be raised.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">copyMat</span></code> : bool, optional a flag to indicate whether an existing material should be saved under a different name. For example if UO2 already exists and the user defines a new UO2. In such a case, copyMat=False deletes the original UO2, otherwise it stores it under a different name. True as default</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">copyName</span></code> : str, optional the name under which an existing material should be saved. The default relies on ORIG_COPY_&lt;material-name&gt;, e.g. ORIG_COPY_UO2.</p></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>      <span class="n">UC</span> <span class="o">=</span> <span class="n">Material</span><span class="p">(</span><span class="s2">&quot;UC&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">300</span><span class="p">,</span> <span class="mi">900</span><span class="p">,</span> <span class="mi">1800</span><span class="p">]))</span>
+<span class="n">UC</span><span class="o">.</span><span class="n">addproperty</span><span class="p">(</span><span class="s2">&quot;tc&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">15.0</span><span class="p">,</span> <span class="mf">13.5</span><span class="p">,</span> <span class="mf">9.0</span><span class="p">]))</span>
+<span class="n">addMaterial</span><span class="p">(</span><span class="n">material</span><span class="o">=</span><span class="n">UC</span><span class="p">,</span>
+             <span class="n">newFile</span><span class="o">=</span><span class="s2">&quot;../tests/ThermoPhysicalPropertiesMod.h5&quot;</span><span class="p">,</span>
+             <span class="n">origFile</span><span class="o">=</span><span class="s2">&quot;../database/ThermoPhysicalProperties.h5&quot;</span><span class="p">,</span>
+             <span class="n">copyMat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="existing-data-library">
+<span id="exitinglibrary"></span><h2>Existing Data Library<a class="headerlink" href="#existing-data-library" title="Permalink to this heading">¶</a></h2>
+<p>The package comes with a built in library that contains the
+following materials in a source denoted here as the <strong>table</strong>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>H2</p></li>
+<li><p>H2_PH</p></li>
+<li><p>Molybdenum</p></li>
+<li><p>Tungsten</p></li>
+<li><p>UC</p></li>
+<li><p>UN</p></li>
+<li><p>UO2</p></li>
+<li><p>Zircaloy</p></li>
+<li><p>ZrC</p></li>
+</ul>
+</div></blockquote>
+<p>The <em>currently</em> allowed list is given in the table below:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Property</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>cp</p></td>
+<td><p>Heat capacity (constant pressure), J/kg/K</p></td>
+</tr>
+<tr class="row-odd"><td><p>cv</p></td>
+<td><p>Heat capacity (constant volume), J/kg/K</p></td>
+</tr>
+<tr class="row-even"><td><p>g</p></td>
+<td><p>Gamma=Cp/Cv, dimensionless</p></td>
+</tr>
+<tr class="row-odd"><td><p>h</p></td>
+<td><p>Enthalpy, J/kg</p></td>
+</tr>
+<tr class="row-even"><td><p>my</p></td>
+<td><p>Viscosity, kg/m/s</p></td>
+</tr>
+<tr class="row-odd"><td><p>pr</p></td>
+<td><p>Prandtl Number, dimensionless</p></td>
+</tr>
+<tr class="row-even"><td><p>r</p></td>
+<td><p>Density, kg/m^3</p></td>
+</tr>
+<tr class="row-odd"><td><p>s</p></td>
+<td><p>Entropy, J/kg/K</p></td>
+</tr>
+<tr class="row-even"><td><p>tc</p></td>
+<td><p>Thermal Conductivity, W/m/K</p></td>
+</tr>
+<tr class="row-odd"><td><p>v</p></td>
+<td><p>Sonic Velocity, m/s</p></td>
+</tr>
+<tr class="row-even"><td><p>tempK</p></td>
+<td><p>Temperature, Kelvin</p></td>
+</tr>
+<tr class="row-odd"><td><p>P</p></td>
+<td><p>Pressure, Pascal</p></td>
+</tr>
+<tr class="row-even"><td><p>mol</p></td>
+<td><p>Mole fraction, dimensionless</p></td>
+</tr>
+<tr class="row-odd"><td><p>nu</p></td>
+<td><p>Poisson ratio, dimensionless</p></td>
+</tr>
+<tr class="row-even"><td><p>alpha</p></td>
+<td><p>Coefficient of thermal expansion, m/m/K</p></td>
+</tr>
+<tr class="row-odd"><td><p>alphaT</p></td>
+<td><p>Zero stress temperature, K</p></td>
+</tr>
+<tr class="row-even"><td><p>E</p></td>
+<td><p>Modulus of elasticity, Pa</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="manipulating-the-data-library">
+<span id="matmanipulate"></span><h2>Manipulating the Data Library<a class="headerlink" href="#manipulating-the-data-library" title="Permalink to this heading">¶</a></h2>
+<p>Replace the original pressure and/or temperature dependnecies with new x- and y-attributes.</p>
+<p>Start by importing the following items:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ntpSystem.functions.propertytable</span> <span class="kn">import</span> <span class="n">ChangeDataDependencies</span>
+</pre></div>
+</div>
+<p>The <strong>syntax</strong> is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ChangeDataDependencies</span><span class="p">(</span><span class="n">matobject</span><span class="p">,</span> <span class="n">xattr</span><span class="p">,</span> <span class="n">yattr</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">gridNy</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where:</p>
+<ul class="simple">
+<li><p>matobject PropertyData object</p></li>
+<li><p>xattr : (string). name of the x-attribute/property, e.g. “P” - pressure</p></li>
+<li><p>yattr : (string). name of the y-attribute/property, e.g. “h” - enthalpy. Does not have to be provided</p></li>
+<li><p>ny : (int). Max. number of points for the y-grid. If set to None, the original grid will be used. However, this may result in prohibitively large number of points.</p></li>
+<li><p>gridNy : (2-dim list) the first list defined the cutoffs of yattrs and the second list provides the number of grid points. The 2nd list must be n+1 in length where the first list should be n in length. e.g., [[1E+3, 1E+4, 1E+5, 1E+06], enthalpy values [50, 50, 50, 50, 200]] - the 1st number is the number of pts below 1E+03 J/kg and the last above 1E+06 J/kg</p></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">H5_ORIG_FILE</span> <span class="o">=</span> <span class="s2">&quot;ThermoPhysicalProperties.h5&quot;</span>
+<span class="c1"># Read the table with hydrogen properties</span>
+<span class="n">table</span> <span class="o">=</span> <span class="n">PropertyTable</span><span class="p">(</span><span class="n">H5_ORIG_FILE</span><span class="p">)</span>
+
+<span class="c1"># Read the original table to obtain pressure- and temperature-dependent pty</span>
+<span class="n">H2_PT</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;H2&quot;</span><span class="p">)</span>
+
+<span class="c1"># Change dependnecies</span>
+<span class="n">H2_PH</span> <span class="o">=</span> <span class="n">ChangeDataDependencies</span><span class="p">(</span><span class="n">H2_PT</span><span class="p">,</span> <span class="n">xattr</span><span class="o">=</span><span class="s2">&quot;P&quot;</span><span class="p">,</span> <span class="n">yattr</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">,</span>
+                               <span class="n">gridNy</span><span class="o">=</span><span class="p">[[</span><span class="mf">1E+3</span><span class="p">,</span> <span class="mf">1E+4</span><span class="p">,</span> <span class="mf">1E+5</span><span class="p">,</span> <span class="mf">1E+06</span><span class="p">],</span>
+                                       <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">]])</span>
+</pre></div>
+</div>
+</section>
+<section id="full-example">
+<span id="matfullexample"></span><h2>Full Example<a class="headerlink" href="#full-example" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ntpSystem</span> <span class="kn">import</span> <span class="n">setDataPath</span>
+<span class="kn">from</span> <span class="nn">ntpSystem.functions.propertytable</span> <span class="kn">import</span> <span class="n">PropertyTable</span><span class="p">,</span>\
+    <span class="n">ChangeDataDependencies</span>
+
+<span class="kn">from</span> <span class="nn">ntpSystem.functions.materials</span> <span class="kn">import</span> <span class="n">Material</span>
+<span class="kn">from</span> <span class="nn">ntpSystem.functions.addmaterial</span> <span class="kn">import</span> <span class="n">addMaterial</span>
+
+<span class="c1"># There is a capability to add multiple materials at once</span>
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="c1"># from ntpSystem.functions.materials import Materials</span>
+<span class="c1"># from ntpSystem.functions.addmaterial import addMaterials</span>
+
+
+<span class="c1"># -----------------------------------------------------------------------------</span>
+<span class="c1"># Read the original file</span>
+<span class="c1"># -----------------------------------------------------------------------------</span>
+
+<span class="n">ORIG_FILE</span> <span class="o">=</span> <span class="s2">&quot;../ignoretests/ThermoPhysicalProperties.h5&quot;</span>
+<span class="n">H5_ORIG_FILE</span> <span class="o">=</span> <span class="s2">&quot;ThermoPhysicalProperties.h5&quot;</span>
+<span class="c1"># Read the table with hydrogen properties</span>
+<span class="n">table</span> <span class="o">=</span> <span class="n">PropertyTable</span><span class="p">(</span><span class="n">H5_ORIG_FILE</span><span class="p">)</span>
+
+<span class="c1"># Read the original table to obtain pressure- and temperature-dependent pty</span>
+<span class="n">H2_PT</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;H2&quot;</span><span class="p">)</span>
+
+<span class="c1"># Change dependnecies</span>
+<span class="n">H2_PH</span> <span class="o">=</span> <span class="n">ChangeDataDependencies</span><span class="p">(</span><span class="n">H2_PT</span><span class="p">,</span> <span class="n">xattr</span><span class="o">=</span><span class="s2">&quot;P&quot;</span><span class="p">,</span> <span class="n">yattr</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">,</span>
+                               <span class="n">gridNy</span><span class="o">=</span><span class="p">[[</span><span class="mf">1E+3</span><span class="p">,</span> <span class="mf">1E+4</span><span class="p">,</span> <span class="mf">1E+5</span><span class="p">,</span> <span class="mf">1E+06</span><span class="p">],</span>
+                                       <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">]])</span>
+
+
+
+<span class="c1"># -----------------------------------------------------------------------------</span>
+<span class="c1"># Define a new H2 material</span>
+<span class="c1"># -----------------------------------------------------------------------------</span>
+
+<span class="c1"># H2_PH.T  -  represents the enthalpy in J/kg</span>
+
+<span class="n">mat_H2</span> <span class="o">=</span>\
+    <span class="n">Material</span><span class="p">(</span><span class="s2">&quot;H2_PH&quot;</span><span class="p">,</span> <span class="n">H2_PH</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">H2_PH</span><span class="o">.</span><span class="n">P</span><span class="p">,</span> <span class="n">reference</span><span class="o">=</span><span class="s1">&#39;same as H2&#39;</span><span class="p">)</span>
+
+<span class="c1"># properties to be defined for the new material</span>
+<span class="n">ptynames</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;cp&#39;</span><span class="p">,</span> <span class="s1">&#39;cv&#39;</span><span class="p">,</span> <span class="s1">&#39;mol&#39;</span><span class="p">,</span> <span class="s1">&#39;my&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;tc&#39;</span><span class="p">,</span> <span class="s1">&#39;v&#39;</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">pty</span> <span class="ow">in</span> <span class="n">ptynames</span><span class="p">:</span>
+    <span class="n">vals</span> <span class="o">=</span> <span class="n">H2_PH</span><span class="o">.</span><span class="n">getpty</span><span class="p">(</span><span class="n">pty</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pty</span> <span class="o">==</span> <span class="s1">&#39;T&#39;</span><span class="p">:</span>
+        <span class="n">pty</span> <span class="o">=</span> <span class="s1">&#39;tempK&#39;</span>
+    <span class="n">mat_H2</span><span class="o">.</span><span class="n">addproperty</span><span class="p">(</span><span class="n">pty</span><span class="p">,</span> <span class="n">vals</span><span class="p">)</span>
+
+
+<span class="c1"># -----------------------------------------------------------------------------</span>
+<span class="c1"># Add the new material to the database</span>
+<span class="c1"># -----------------------------------------------------------------------------</span>
+<span class="n">H5_NEW_FILE</span> <span class="o">=</span> <span class="s2">&quot;ThermoPhysicalProperties_04Apr23.h5&quot;</span>
+<span class="n">h5pathOrig</span> <span class="o">=</span> <span class="n">setDataPath</span><span class="p">(</span><span class="n">H5_ORIG_FILE</span><span class="p">)</span>
+<span class="n">h5pathNew</span> <span class="o">=</span> <span class="n">setDataPath</span><span class="p">(</span><span class="n">H5_NEW_FILE</span><span class="p">)</span>
+
+<span class="c1"># add the new H2_PH data into the database</span>
+<span class="n">addMaterial</span><span class="p">(</span><span class="n">mat_H2</span><span class="p">,</span> <span class="n">newFile</span><span class="o">=</span><span class="n">h5pathNew</span><span class="p">,</span> <span class="n">origFile</span><span class="o">=</span><span class="n">h5pathOrig</span><span class="p">,</span> <span class="n">overwrtFile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">copyMat</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">copyName</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">ntpSystem</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Project Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributors.html">Developer Team</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">User’s Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Methodology/index.html">Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../develop/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">User’s Manual</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">User’s Manual</a></li>
+      <li>Next: <a href="steadystate.html" title="next chapter">Steady state simulation</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Dan Kotlyar.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/Manual/Material.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

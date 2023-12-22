@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>NTP System Package (ntpSystem’s) documentation! &#8212; ntpSystem 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Project Overview" href="overview.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="ntp-system-package-ntpsystem-s-documentation">
+<h1>NTP System Package (ntpSystem’s) documentation!<a class="headerlink" href="#ntp-system-package-ntpsystem-s-documentation" title="Permalink to this heading">¶</a></h1>
+<p>The framework includes a steady-state solver used to
+converge on pumping requirements and conserve enthalpy prior to the start of a transient.
+The novel approach
+here relies on the steady-state component within the framework to generate operational maps. The latter indicate
+the feasibility of control based on nozzle chamber conditions for a given engine design in lieu of publicly unavailableeferred citation for attribution
+pump curves. The framework is applied to investigate uprate in power maneuvers in conjunction with
+sensitivity studies to show the feasibility of an engine startup</p>
+<blockquote>
+<div><p>V. Manickam, D. Kotlyar, 2022.
+Implementation of a comprehensive reduced order methodology for transient analysis of nuclear thermal propulsion engines,
+Nuclear Engineering and Design, 395, 111841.  <a class="reference external" href="https://doi.org/10.1016/j.nucengdes.2022.111841">https://doi.org/10.1016/j.nucengdes.2022.111841</a></p>
+</div></blockquote>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Project Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributors.html">Developer Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Manual/index.html">User’s Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Methodology/index.html">Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="develop/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+</ul>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>               <span class="o">----------------</span>
+               \              <span class="o">/</span>
+                \   <span class="n">H2</span> <span class="n">Tank</span>  <span class="o">/</span>
+                 <span class="o">------------</span>     <span class="n">pump</span>         <span class="n">turbine</span>
+                      <span class="o">|</span>                 <span class="n">shaft</span>   <span class="n">_</span>
+                      <span class="n">v</span>           <span class="o">/|</span><span class="n">___________</span><span class="o">/</span> <span class="o">|</span>
+                       <span class="o">---------&gt;|</span> <span class="o">|</span><span class="n">___________</span><span class="o">|</span> <span class="o">|</span>
+                                  \<span class="o">|</span>           \<span class="n">_</span><span class="o">|</span>
+                                   <span class="o">|</span>       <span class="o">-----^-------</span>
+                                   <span class="o">|</span>      <span class="o">|</span>             <span class="o">|</span>
+                      <span class="n">o</span><span class="o">------------</span><span class="n">v</span>      <span class="o">|</span>             <span class="o">|</span>
+                      <span class="o">|</span>                   <span class="o">|</span>             <span class="o">|</span>
+                      <span class="n">v</span>                   <span class="o">|-----|&gt;&lt;|----</span>
+                      <span class="o">|</span>                   <span class="o">|</span>    <span class="n">bypass</span>   <span class="o">|</span>
+                      <span class="o">|</span>                   <span class="o">|</span>             <span class="o">|</span>
+<span class="o">-------------&lt;--------</span>                    <span class="o">|</span>             <span class="o">|</span>
+<span class="o">|</span>                     <span class="o">|</span>    <span class="n">Mix</span> <span class="n">Tee</span>        <span class="o">|</span>             <span class="o">|</span>
+<span class="o">|</span>     <span class="n">REFLECTOR</span><span class="o">------~~----&gt;</span><span class="n">o</span><span class="o">-------------</span>              <span class="o">|</span>
+<span class="o">|</span>         <span class="o">^</span>           <span class="o">|</span>     <span class="o">^</span>                           <span class="o">|</span>
+<span class="o">|</span>         <span class="o">|</span>           <span class="o">|</span>     <span class="o">|</span>          <span class="o">-----------------</span>
+<span class="o">|</span>         <span class="o">|</span>           <span class="o">|</span>     <span class="o">|</span>          <span class="o">|</span>
+<span class="o">-----&gt;</span> <span class="n">NOZZLE</span>         <span class="o">|</span>     <span class="o">|</span>          <span class="o">|</span>
+                      <span class="o">|</span>     <span class="o">^</span>          <span class="n">v</span>
+                      <span class="o">|</span>     <span class="o">|</span>          <span class="o">|</span>
+                      <span class="o">|</span>   <span class="n">Return</span>       <span class="o">|</span>
+                      <span class="n">v</span>     <span class="o">|</span>        <span class="n">Fuel</span>
+                    <span class="n">Supply</span>  <span class="o">|</span>          <span class="o">|</span>
+                      <span class="o">|</span>     <span class="o">|</span>          <span class="o">|</span>
+                       <span class="o">-----</span>           <span class="n">v</span>
+                                    <span class="n">Chamber</span>
+                                       <span class="o">|</span>
+                                       <span class="n">v</span>
+                                  <span class="n">Nozzle</span> <span class="n">throat</span>
+                                       <span class="o">|</span>
+                                       <span class="n">v</span>
+</pre></div>
+</div>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">ntpSystem</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Project Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributors.html">Developer Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Manual/index.html">User’s Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Methodology/index.html">Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="develop/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="overview.html" title="next chapter">Project Overview</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Dan Kotlyar.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

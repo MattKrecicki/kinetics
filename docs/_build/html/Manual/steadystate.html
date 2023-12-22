@@ -1,0 +1,682 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Steady state simulation &#8212; ntpSystem 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Print results" href="outputresults.html" />
+    <link rel="prev" title="Adding New Materials" href="Material.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="steady-state-simulation">
+<span id="ss-simulation"></span><h1>Steady state simulation<a class="headerlink" href="#steady-state-simulation" title="Permalink to this heading">¶</a></h1>
+<p>In order to define the cards needed to run a steady state problem, the user is required to
+define all the required input cards and only then execute the steady state problem.
+The inputs are defined using the <code class="docutils literal notranslate"><span class="pre">SteadyStateInputs</span></code> container.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ntpSystem.functions.steadystatesolver</span> <span class="kn">import</span> <span class="n">SteadyStateSystem</span>
+<span class="n">ssOutps</span> <span class="o">=</span> <span class="n">SteadyStateSystem</span><span class="p">(</span><span class="n">ssInps</span><span class="p">)</span>
+<span class="n">ssOutps</span><span class="o">.</span><span class="n">Solve</span><span class="p">()</span>  <span class="c1"># solve steady state</span>
+</pre></div>
+</div>
+<p>An integral part of this system code is to define the input files using the <code class="docutils literal notranslate"><span class="pre">ntpThermo</span></code> code.</p>
+<section id="inputs">
+<span id="ssinpscards"></span><h2>Inputs<a class="headerlink" href="#inputs" title="Permalink to this heading">¶</a></h2>
+<p>Import the container:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ntpSystem.containers.steadyinputs</span> <span class="kn">import</span> <span class="n">SteadyStateInputs</span>
+</pre></div>
+</div>
+<p>Initialize the container:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ssInps</span> <span class="o">=</span> <span class="n">SteadyStateInputs</span><span class="p">(</span><span class="n">prntMsgs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">prntMsgs</span></code> is a flag to indicate if messages should be printed during execution of the code. The default is True.</p>
+<p>Feed the container with data using the <code class="docutils literal notranslate"><span class="pre">AddData</span></code> method:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ssInps</span><span class="o">.</span><span class="n">AddData</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">component</span></code> is the name of the component for which the data should be provided for. The different types of components are provided in the following table.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kwargs</span></code> are variable names and their values. The variables names are pre-defined for each component.</p></li>
+</ul>
+<p>Once all the data is provided <strong>verify that the data is properly fed</strong> using the <code class="docutils literal notranslate"><span class="pre">ValidateInputs</span></code> method:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ssInps</span><span class="o">.</span><span class="n">ValidateInputs</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="components">
+<span id="component-cards"></span><h2>Components<a class="headerlink" href="#components" title="Permalink to this heading">¶</a></h2>
+<p>The different <em>components</em> that must be populated with data:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Component</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="#component-react"><span class="std std-ref">reactor</span></a></p></td>
+<td><p>Basic definitions for core, nozzle, reflector, and piping components</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#component-operat"><span class="std std-ref">operation</span></a></p></td>
+<td><p>operational parameters</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#component-turbopump"><span class="std std-ref">turbopump</span></a></p></td>
+<td><p>descriptive data of the turbopump components</p></td>
+</tr>
+</tbody>
+</table>
+<p><a class="reference internal" href="#inputcardsfullexample"><span class="std std-ref">A full example of how to pupulate input cards is included.</span></a></p>
+<p>Each component has assigned keys some which are madatory to be populated and some optional.
+The keys for all the components are <strong>case sensitive</strong>!</p>
+<section id="reactor">
+<span id="component-react"></span><h3>reactor<a class="headerlink" href="#reactor" title="Permalink to this heading">¶</a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Required</p></th>
+<th class="head"><p>Range</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>fuel_inpfile</p></td>
+<td><p>input file for ntpThermo</p></td>
+<td></td>
+<td><p>yes            string</p></td>
+</tr>
+<tr class="row-odd"><td><p>fuel_chId</p></td>
+<td><p>string name for the channel</p></td>
+<td></td>
+<td><p>yes            string</p></td>
+</tr>
+<tr class="row-even"><td><p>fuel_n</p></td>
+<td><p>total number of coolant channels</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=1</p></td>
+</tr>
+<tr class="row-odd"><td><p>fuel_layer0</p></td>
+<td><p>index of the very first layer in the channel</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=0</p></td>
+</tr>
+<tr class="row-even"><td><p>fuel_nlayers</p></td>
+<td><p>number of layers belonging to this element type</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=1</p></td>
+</tr>
+<tr class="row-odd"><td><p>mesupply_inpfile</p></td>
+<td><p>input file for ntpThermo</p></td>
+<td></td>
+<td><p>yes            string</p></td>
+</tr>
+<tr class="row-even"><td><p>mesupply_chId</p></td>
+<td><p>string name for the channel</p></td>
+<td></td>
+<td><p>yes            string</p></td>
+</tr>
+<tr class="row-odd"><td><p>mesupply_n</p></td>
+<td><p>total number of coolant channels</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=1</p></td>
+</tr>
+<tr class="row-even"><td><p>mesupply_layer0</p></td>
+<td><p>index of the very first layer in the channel</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=0</p></td>
+</tr>
+<tr class="row-odd"><td><p>mesupply_nlayers</p></td>
+<td><p>number of layers belonging to this element type</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=1</p></td>
+</tr>
+<tr class="row-even"><td><p>mereturn_inpfile</p></td>
+<td><p>input file for ntpThermo</p></td>
+<td></td>
+<td><p>yes            string</p></td>
+</tr>
+<tr class="row-odd"><td><p>mereturn_chId</p></td>
+<td><p>string name for the channel</p></td>
+<td></td>
+<td><p>yes            string</p></td>
+</tr>
+<tr class="row-even"><td><p>mereturn_n</p></td>
+<td><p>total number of coolant channels</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=1</p></td>
+</tr>
+<tr class="row-odd"><td><p>mereturn_layer0</p></td>
+<td><p>index of the very first layer in the channel</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=0</p></td>
+</tr>
+<tr class="row-even"><td><p>mereturn_nlayers</p></td>
+<td><p>number of layers belonging to this element type</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=1</p></td>
+</tr>
+<tr class="row-odd"><td><p>nozzle_inpfile</p></td>
+<td><p>input file for ntpThermo</p></td>
+<td></td>
+<td><p>yes            string</p></td>
+</tr>
+<tr class="row-even"><td><p>nozzle_chId</p></td>
+<td><p>string name for the channel</p></td>
+<td></td>
+<td><p>yes            string</p></td>
+</tr>
+<tr class="row-odd"><td><p>nozzle_n</p></td>
+<td><p>total number of coolant channels</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=1</p></td>
+</tr>
+<tr class="row-even"><td><p>nozzle_layer0</p></td>
+<td><p>index of the very first layer in the channel</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=0</p></td>
+</tr>
+<tr class="row-odd"><td><p>nozzle_nlayers</p></td>
+<td><p>number of layers belonging to this element type</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=1</p></td>
+</tr>
+<tr class="row-even"><td><p>reflector_inpfile</p></td>
+<td><p>input file for ntpThermo</p></td>
+<td></td>
+<td><p>yes            string</p></td>
+</tr>
+<tr class="row-odd"><td><p>reflector_chId</p></td>
+<td><p>string name for the channel</p></td>
+<td></td>
+<td><p>yes            string</p></td>
+</tr>
+<tr class="row-even"><td><p>reflector_n</p></td>
+<td><p>total number of coolant channels</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=1</p></td>
+</tr>
+<tr class="row-odd"><td><p>reflector_layer0</p></td>
+<td><p>index of the very first layer in the channel</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=0</p></td>
+</tr>
+<tr class="row-even"><td><p>reflector_nlayers</p></td>
+<td><p>number of layers belonging to this element type</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=1</p></td>
+</tr>
+<tr class="row-odd"><td><p>pipeFuel_inpfile</p></td>
+<td><p>input file for ntpThermo</p></td>
+<td></td>
+<td><p>yes            string</p></td>
+</tr>
+<tr class="row-even"><td><p>pipeFuel_chId</p></td>
+<td><p>string name for the channel</p></td>
+<td></td>
+<td><p>yes            string</p></td>
+</tr>
+<tr class="row-odd"><td><p>pipeFuel_n</p></td>
+<td><p>total number of coolant channels</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=1</p></td>
+</tr>
+<tr class="row-even"><td><p>pipeFuel_layer0</p></td>
+<td><p>index of the very first layer in the channel</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=0</p></td>
+</tr>
+<tr class="row-odd"><td><p>pipeFuel_nlayers</p></td>
+<td><p>number of layers belonging to this element type</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=1</p></td>
+</tr>
+<tr class="row-even"><td><p>pipeMod_inpfile</p></td>
+<td><p>input file for ntpThermo</p></td>
+<td></td>
+<td><p>yes            string</p></td>
+</tr>
+<tr class="row-odd"><td><p>pipeMod_chId</p></td>
+<td><p>string name for the channel</p></td>
+<td></td>
+<td><p>yes            string</p></td>
+</tr>
+<tr class="row-even"><td><p>pipeMod_n</p></td>
+<td><p>total number of coolant channels</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=1</p></td>
+</tr>
+<tr class="row-odd"><td><p>pipeMod_layer0</p></td>
+<td><p>index of the very first layer in the channel</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=0</p></td>
+</tr>
+<tr class="row-even"><td><p>pipeMod_nlayers</p></td>
+<td><p>number of layers belonging to this element type</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=1</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ssInps</span><span class="o">.</span><span class="n">AddData</span><span class="p">(</span><span class="s2">&quot;reactor&quot;</span><span class="p">,</span>
+    <span class="n">fuel_inpfile</span> <span class="o">=</span> <span class="s1">&#39;.</span><span class="se">\\</span><span class="s1">inputs_largeNerva</span><span class="se">\\</span><span class="s1">FuelCircuit.txt&#39;</span><span class="p">,</span>
+    <span class="n">fuel_chId</span> <span class="o">=</span> <span class="s1">&#39;fe&#39;</span><span class="p">,</span> <span class="n">fuel_n</span> <span class="o">=</span> <span class="mi">564</span><span class="p">,</span> <span class="n">fuel_layer0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">fuel_nlayers</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="n">mesupply_inpfile</span> <span class="o">=</span> <span class="s1">&#39;.</span><span class="se">\\</span><span class="s1">inputs_largeNerva</span><span class="se">\\</span><span class="s1">ReflMEcircuit.txt&#39;</span><span class="p">,</span>
+    <span class="n">mesupply_chId</span> <span class="o">=</span> <span class="s1">&#39;mod&#39;</span><span class="p">,</span> <span class="n">mesupply_n</span> <span class="o">=</span> <span class="mi">241</span><span class="p">,</span> <span class="n">mesupply_layer0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">mesupply_nlayers</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">mereturn_inpfile</span> <span class="o">=</span> <span class="s1">&#39;.</span><span class="se">\\</span><span class="s1">inputs_largeNerva</span><span class="se">\\</span><span class="s1">ReflMEcircuit.txt&#39;</span><span class="p">,</span>
+    <span class="n">mereturn_chId</span> <span class="o">=</span> <span class="s1">&#39;mod&#39;</span><span class="p">,</span> <span class="n">mereturn_n</span> <span class="o">=</span> <span class="mi">241</span><span class="p">,</span> <span class="n">mereturn_layer0</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">mereturn_nlayers</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">nozzle_inpfile</span> <span class="o">=</span> <span class="s1">&#39;.</span><span class="se">\\</span><span class="s1">inputs_largeNerva</span><span class="se">\\</span><span class="s1">ReflMEcircuit.txt&#39;</span><span class="p">,</span>
+    <span class="n">nozzle_chId</span> <span class="o">=</span> <span class="s1">&#39;ref&#39;</span><span class="p">,</span> <span class="n">nozzle_n</span> <span class="o">=</span> <span class="mi">400</span><span class="p">,</span> <span class="n">nozzle_layer0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">nozzle_nlayers</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">reflector_inpfile</span> <span class="o">=</span> <span class="s1">&#39;.</span><span class="se">\\</span><span class="s1">inputs_largeNerva</span><span class="se">\\</span><span class="s1">ReflMEcircuit.txt&#39;</span><span class="p">,</span>
+    <span class="n">reflector_chId</span> <span class="o">=</span> <span class="s1">&#39;ref&#39;</span><span class="p">,</span> <span class="n">reflector_n</span> <span class="o">=</span> <span class="mi">400</span><span class="p">,</span> <span class="n">reflector_layer0</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">reflector_nlayers</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">pipeFuel_inpfile</span> <span class="o">=</span> <span class="s1">&#39;.</span><span class="se">\\</span><span class="s1">inputs_largeNerva</span><span class="se">\\</span><span class="s1">PipeFuel.txt&#39;</span><span class="p">,</span>
+    <span class="n">pipeFuel_chId</span> <span class="o">=</span> <span class="s1">&#39;pipeFuel&#39;</span><span class="p">,</span> <span class="n">pipeFuel_n</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">pipeFuel_layer0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">pipeFuel_nlayers</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="n">pipeMod_inpfile</span> <span class="o">=</span> <span class="s1">&#39;.</span><span class="se">\\</span><span class="s1">inputs_largeNerva</span><span class="se">\\</span><span class="s1">PipePump.txt&#39;</span><span class="p">,</span>
+    <span class="n">pipeMod_chId</span> <span class="o">=</span> <span class="s1">&#39;pipePump&#39;</span><span class="p">,</span> <span class="n">pipeMod_n</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">pipeMod_layer0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">pipeMod_nlayers</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Notes:
+- All the components must be defined. At the moment, the components must include the fuel, nozzle, reflector, supply, return, fuel-pipe, and moderator-pipe.
+- Each component can be defined using a single and unique file. However, a single file can also be used to define multiple channels. In addition, the solution of each file can be obtained using the various convergence schemes that exist in <code class="docutils literal notranslate"><span class="pre">ntpThermo</span></code>.
+-</p>
+</section>
+<section id="operation">
+<span id="component-operat"></span><h3>operation<a class="headerlink" href="#operation" title="Permalink to this heading">¶</a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Required</p></th>
+<th class="head"><p>Range</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Pt</p></td>
+<td><p>hydrogen storage tank pressure [Pa]</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=0</p></td>
+</tr>
+<tr class="row-odd"><td><p>Tt</p></td>
+<td><p>hydorgen storage tank temperature [K]</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=0</p></td>
+</tr>
+<tr class="row-even"><td><p>Pc</p></td>
+<td><p>chamber pressure [Pa]</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=0</p></td>
+</tr>
+<tr class="row-odd"><td><p>Tc</p></td>
+<td><p>chamber temperature [K]</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=0</p></td>
+</tr>
+<tr class="row-even"><td><p>power</p></td>
+<td><p>total power [watts]</p></td>
+<td><p>no</p></td>
+<td><p>&gt;=0</p></td>
+</tr>
+<tr class="row-odd"><td><p>mdot</p></td>
+<td><p>total mass flow rate [kg/s]</p></td>
+<td><p>no</p></td>
+<td><p>&gt;=0</p></td>
+</tr>
+<tr class="row-even"><td><p>At</p></td>
+<td><p>nozzle throat area [m^2]</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=0</p></td>
+</tr>
+<tr class="row-odd"><td><p>nozzleExpR</p></td>
+<td><p>nozzle expansion ratio</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=0</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ssInps</span><span class="o">.</span><span class="n">AddData</span><span class="p">(</span><span class="s2">&quot;operation&quot;</span><span class="p">,</span>
+    <span class="n">Pc</span> <span class="o">=</span> <span class="mf">6.89E+06</span><span class="p">,</span>              <span class="c1"># desired chamber pressure, Pa</span>
+    <span class="n">Tc</span> <span class="o">=</span> <span class="mi">2794</span><span class="p">,</span>                  <span class="c1"># desired chamber temperature, K</span>
+    <span class="n">Pt</span> <span class="o">=</span> <span class="mf">0.22e+6</span><span class="p">,</span>               <span class="c1"># tank pressure, Pa</span>
+    <span class="n">Tt</span> <span class="o">=</span> <span class="mf">21.0</span><span class="p">,</span>                  <span class="c1"># tank temperature, K</span>
+    <span class="n">power</span> <span class="o">=</span> <span class="mf">581640222.4</span><span class="p">,</span>        <span class="c1"># absolute total power in watts</span>
+    <span class="n">mdot</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>                <span class="c1"># system mass flow rate kg/s</span>
+    <span class="n">At</span> <span class="o">=</span> <span class="mf">0.005662964739541421</span><span class="p">,</span>  <span class="c1"># nozzle throat area, m2</span>
+    <span class="n">nozzleExpR</span> <span class="o">=</span> <span class="mf">300.</span><span class="p">,</span>          <span class="c1"># nozzle expansion ratio</span>
+    <span class="p">)</span>  <span class="c1"># operation</span>
+</pre></div>
+</div>
+<p>The following options to calculate power and mass flow rate exist:
+- User cannot define <code class="docutils literal notranslate"><span class="pre">mdot</span></code> and <code class="docutils literal notranslate"><span class="pre">power</span></code> together.
+- Either mass flow rate or power can be defined.
+- If none of the mass flow rate or power is defined, isentropic relation is used to calculate the mass flow rate in the system.</p>
+</section>
+<section id="turbopump">
+<span id="component-turbopump"></span><h3>turbopump<a class="headerlink" href="#turbopump" title="Permalink to this heading">¶</a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Required</p></th>
+<th class="head"><p>Range</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>noPumps</p></td>
+<td><p>number of turbopumps in engine system</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=1</p></td>
+</tr>
+<tr class="row-odd"><td><p>pumpPratio</p></td>
+<td><p>pump outlet-to-inlet pressure</p></td>
+<td><p>yes</p></td>
+<td><p>&gt;=1.0</p></td>
+</tr>
+<tr class="row-even"><td><p>pumpSs</p></td>
+<td><p>target specific suction (20 is max.), unitless</p></td>
+<td><p>5.0</p></td>
+<td><p>[0.1, 20]</p></td>
+</tr>
+<tr class="row-odd"><td><p>pumpMarginPin</p></td>
+<td><p>margin inlet pump pressure needed for caviation</p></td>
+<td><p>0.1</p></td>
+<td><p>[0, 1]</p></td>
+</tr>
+<tr class="row-even"><td><p>pumpEfficiency</p></td>
+<td><p>constant pump efficiency</p></td>
+<td><p>no</p></td>
+<td><p>[0, 1]</p></td>
+</tr>
+<tr class="row-odd"><td><p>turbType</p></td>
+<td><p>turbine type</p></td>
+<td><p>axial</p></td>
+<td><p>axial / radial</p></td>
+</tr>
+<tr class="row-even"><td><p>turbMat</p></td>
+<td><p>material name</p></td>
+<td><p>no</p></td>
+<td><p>see below</p></td>
+</tr>
+<tr class="row-odd"><td><p>turbDensity</p></td>
+<td><p>material density [kg/m^3]</p></td>
+<td><p>no</p></td>
+<td><p>&gt;=0.0</p></td>
+</tr>
+<tr class="row-even"><td><p>turbStress</p></td>
+<td><p>material stress [Pa]</p></td>
+<td><p>no</p></td>
+<td><p>&gt;=0.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>turbD</p></td>
+<td><p>turbine diameter [m]</p></td>
+<td><p>no</p></td>
+<td><p>&gt;=0.0</p></td>
+</tr>
+<tr class="row-even"><td><p>turbRefPoint</p></td>
+<td><p>turbine inlet/outlet reference point for density</p></td>
+<td><p>outlet</p></td>
+<td><p>outlet / inlet / average</p></td>
+</tr>
+<tr class="row-odd"><td><p>turbEfficiency</p></td>
+<td><p>constant turbine efficiency</p></td>
+<td><p>no</p></td>
+<td><p>&gt;=0</p></td>
+</tr>
+<tr class="row-even"><td><p>gearR</p></td>
+<td><p>gear ratio</p></td>
+<td><p>1.0</p></td>
+<td><p>&gt;=1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>strsF</p></td>
+<td><p>stress factor</p></td>
+<td><p>no</p></td>
+<td><p>&gt;=0</p></td>
+</tr>
+<tr class="row-even"><td><p>turbh2D</p></td>
+<td><p>turbine h/D ratio</p></td>
+<td><p>no</p></td>
+<td><p>&gt;=0</p></td>
+</tr>
+<tr class="row-odd"><td><p>safetyF</p></td>
+<td><p>safety factor</p></td>
+<td><p>1.2</p></td>
+<td><p>&gt;=0</p></td>
+</tr>
+<tr class="row-even"><td><p>turbAxB02B</p></td>
+<td><p>inner-to-outer radius of the disk ratio</p></td>
+<td><p>4.0</p></td>
+<td><p>[3, 20]</p></td>
+</tr>
+<tr class="row-odd"><td><p>turbAxTaper</p></td>
+<td><p>Blade taper (fig.10.8 Emrich’s book.)</p></td>
+<td><p>0.5</p></td>
+<td><p>[0.4, 1.0]</p></td>
+</tr>
+<tr class="row-even"><td><p>turbRadr2R</p></td>
+<td><p>Blade-to-disc (r/R) radii ratio</p></td>
+<td><p>0.4</p></td>
+<td><p>[0.0, 1.0]</p></td>
+</tr>
+<tr class="row-odd"><td><p>cMesh</p></td>
+<td><p>coarse mesh division for finding optimum efficiency</p></td>
+<td><p>30</p></td>
+<td><p>[5, 10000]</p></td>
+</tr>
+<tr class="row-even"><td><p>fMesh</p></td>
+<td><p>fine mesh division for finding optimum efficiency</p></td>
+<td><p>30</p></td>
+<td><p>[5, 10000]</p></td>
+</tr>
+</tbody>
+</table>
+<p>Allowed <strong>turbopump</strong> materials:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;stainless steel&#39;</span><span class="p">,</span> <span class="s1">&#39;aluminum&#39;</span><span class="p">,</span> <span class="s1">&#39;brass&#39;</span><span class="p">,</span> <span class="s1">&#39;bronze&#39;</span><span class="p">,</span> <span class="s1">&#39;inconcel&#39;</span><span class="p">,</span> <span class="s1">&#39;titanium&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The user can also define their own material by defining: <code class="docutils literal notranslate"><span class="pre">turbDensity</span></code> and <code class="docutils literal notranslate"><span class="pre">turbStress</span></code>.</p>
+<p>The following cards from the table above are optional:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+<span class="s1">&#39;turbMat&#39;</span><span class="p">,</span> <span class="s1">&#39;turbDensity&#39;</span><span class="p">,</span> <span class="s1">&#39;turbStress&#39;</span><span class="p">,</span> <span class="s1">&#39;pumpEfficiency&#39;</span><span class="p">,</span>
+<span class="s1">&#39;turbEfficiency&#39;</span><span class="p">,</span> <span class="s1">&#39;gearR&#39;</span><span class="p">,</span> <span class="s1">&#39;turbD&#39;</span><span class="p">,</span> <span class="s1">&#39;turbAxB02B&#39;</span><span class="p">,</span> <span class="s1">&#39;turbAxTaper&#39;</span><span class="p">,</span>
+<span class="s1">&#39;turbRadr2R&#39;</span><span class="p">,</span> <span class="s1">&#39;turbh2D&#39;</span><span class="p">,</span> <span class="s1">&#39;strsF&#39;</span><span class="p">,</span> <span class="s1">&#39;pumpD&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>There are two modes of calculation in the case of a turbine:
+1. <code class="docutils literal notranslate"><span class="pre">turbD</span></code> is directly provided and the max shaft speed is calculated together with the gear ratio.
+2. <code class="docutils literal notranslate"><span class="pre">gearR``gear</span> <span class="pre">ratio</span> <span class="pre">is</span> <span class="pre">provided</span> <span class="pre">and</span> <span class="pre">``turbD</span></code> is calculated on-the-fly.</p>
+</section>
+</section>
+<section id="full-example">
+<span id="inputcardsfullexample"></span><h2>Full Example<a class="headerlink" href="#full-example" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#------------------------------------------------------------------------------</span>
+<span class="c1">#----- Data for a dual NERVA pump</span>
+<span class="c1">#------------------------------------------------------------------------------</span>
+<span class="n">noFuels</span> <span class="o">=</span> <span class="mi">564</span>
+<span class="n">noMods</span> <span class="o">=</span> <span class="mi">241</span>
+<span class="n">totPow</span> <span class="o">=</span> <span class="mf">581640222.4</span>  <span class="c1">#  555E+06</span>
+<span class="c1"># The real total power should be 581640222.4</span>
+
+<span class="n">mdot</span> <span class="o">=</span> <span class="mf">12.68</span>  <span class="c1"># kg/s</span>
+<span class="n">pumpPratio</span> <span class="o">=</span> <span class="mf">15.65</span> <span class="o">/</span> <span class="mf">0.22</span>  <span class="c1"># pump pressure ratio</span>
+
+<span class="c1">#------------------------------------------------------------------------------</span>
+<span class="c1">#----- define inputs</span>
+<span class="c1">#------------------------------------------------------------------------------</span>
+
+
+<span class="c1">#initalize input container-----------------------------------------------------</span>
+<span class="n">ssInps</span> <span class="o">=</span> <span class="n">SteadyStateInputs</span><span class="p">()</span>
+
+
+<span class="c1"># reactor geometry-------------------------------------------------------------</span>
+
+<span class="n">ssInps</span><span class="o">.</span><span class="n">AddData</span><span class="p">(</span><span class="s2">&quot;reactor&quot;</span><span class="p">,</span>
+    <span class="n">fuel_inpfile</span> <span class="o">=</span> <span class="s1">&#39;.</span><span class="se">\\</span><span class="s1">inputs_largeNerva</span><span class="se">\\</span><span class="s1">FuelCircuit.txt&#39;</span><span class="p">,</span>
+    <span class="n">fuel_chId</span> <span class="o">=</span> <span class="s1">&#39;fe&#39;</span><span class="p">,</span> <span class="n">fuel_n</span> <span class="o">=</span> <span class="mi">564</span><span class="p">,</span> <span class="n">fuel_layer0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">fuel_nlayers</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="n">mesupply_inpfile</span> <span class="o">=</span> <span class="s1">&#39;.</span><span class="se">\\</span><span class="s1">inputs_largeNerva</span><span class="se">\\</span><span class="s1">ReflMEcircuit.txt&#39;</span><span class="p">,</span>
+    <span class="n">mesupply_chId</span> <span class="o">=</span> <span class="s1">&#39;mod&#39;</span><span class="p">,</span> <span class="n">mesupply_n</span> <span class="o">=</span> <span class="mi">241</span><span class="p">,</span> <span class="n">mesupply_layer0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">mesupply_nlayers</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">mereturn_inpfile</span> <span class="o">=</span> <span class="s1">&#39;.</span><span class="se">\\</span><span class="s1">inputs_largeNerva</span><span class="se">\\</span><span class="s1">ReflMEcircuit.txt&#39;</span><span class="p">,</span>
+    <span class="n">mereturn_chId</span> <span class="o">=</span> <span class="s1">&#39;mod&#39;</span><span class="p">,</span> <span class="n">mereturn_n</span> <span class="o">=</span> <span class="mi">241</span><span class="p">,</span> <span class="n">mereturn_layer0</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">mereturn_nlayers</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">nozzle_inpfile</span> <span class="o">=</span> <span class="s1">&#39;.</span><span class="se">\\</span><span class="s1">inputs_largeNerva</span><span class="se">\\</span><span class="s1">ReflMEcircuit.txt&#39;</span><span class="p">,</span>
+    <span class="n">nozzle_chId</span> <span class="o">=</span> <span class="s1">&#39;ref&#39;</span><span class="p">,</span> <span class="n">nozzle_n</span> <span class="o">=</span> <span class="mi">400</span><span class="p">,</span> <span class="n">nozzle_layer0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">nozzle_nlayers</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">reflector_inpfile</span> <span class="o">=</span> <span class="s1">&#39;.</span><span class="se">\\</span><span class="s1">inputs_largeNerva</span><span class="se">\\</span><span class="s1">ReflMEcircuit.txt&#39;</span><span class="p">,</span>
+    <span class="n">reflector_chId</span> <span class="o">=</span> <span class="s1">&#39;ref&#39;</span><span class="p">,</span> <span class="n">reflector_n</span> <span class="o">=</span> <span class="mi">400</span><span class="p">,</span> <span class="n">reflector_layer0</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">reflector_nlayers</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">pipeFuel_inpfile</span> <span class="o">=</span> <span class="s1">&#39;.</span><span class="se">\\</span><span class="s1">inputs_largeNerva</span><span class="se">\\</span><span class="s1">PipeFuel.txt&#39;</span><span class="p">,</span>
+    <span class="n">pipeFuel_chId</span> <span class="o">=</span> <span class="s1">&#39;pipeFuel&#39;</span><span class="p">,</span> <span class="n">pipeFuel_n</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">pipeFuel_layer0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">pipeFuel_nlayers</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="n">pipeMod_inpfile</span> <span class="o">=</span> <span class="s1">&#39;.</span><span class="se">\\</span><span class="s1">inputs_largeNerva</span><span class="se">\\</span><span class="s1">PipePump.txt&#39;</span><span class="p">,</span>
+    <span class="n">pipeMod_chId</span> <span class="o">=</span> <span class="s1">&#39;pipePump&#39;</span><span class="p">,</span> <span class="n">pipeMod_n</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">pipeMod_layer0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">pipeMod_nlayers</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span>
+
+
+<span class="c1"># operational conditions-------------------------------------------------------</span>
+<span class="n">ssInps</span><span class="o">.</span><span class="n">AddData</span><span class="p">(</span><span class="s2">&quot;operation&quot;</span><span class="p">,</span>
+    <span class="n">Pc</span> <span class="o">=</span> <span class="mf">6.89E+06</span><span class="p">,</span>              <span class="c1"># desired chamber pressure, Pa</span>
+    <span class="n">Tc</span> <span class="o">=</span> <span class="mi">2794</span><span class="p">,</span>                  <span class="c1"># desired chamber temperature, K</span>
+    <span class="n">Pt</span> <span class="o">=</span> <span class="mf">0.22e+6</span><span class="p">,</span>               <span class="c1"># tank pressure, Pa</span>
+    <span class="n">Tt</span> <span class="o">=</span> <span class="mf">21.0</span><span class="p">,</span>                  <span class="c1"># tank temperature, K</span>
+    <span class="n">power</span> <span class="o">=</span> <span class="mf">581640222.4</span><span class="p">,</span>        <span class="c1"># absolute total power in watts</span>
+    <span class="n">mdot</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>                <span class="c1"># system mass flow rate kg/s</span>
+    <span class="n">At</span> <span class="o">=</span> <span class="mf">0.005662964739541421</span><span class="p">,</span>  <span class="c1"># nozzle throat area, m2</span>
+    <span class="n">nozzleExpR</span> <span class="o">=</span> <span class="mf">300.</span><span class="p">,</span>          <span class="c1"># nozzle expansion ratio</span>
+    <span class="p">)</span>  <span class="c1"># operation</span>
+
+
+
+<span class="c1"># turbopumppump data-----------------------------------------------------------</span>
+<span class="n">ssInps</span><span class="o">.</span><span class="n">AddData</span><span class="p">(</span><span class="s2">&quot;turbopump&quot;</span><span class="p">,</span>
+    <span class="n">noPumps</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>               <span class="c1"># number of pumps in expander cycle</span>
+    <span class="n">pumpSs</span> <span class="o">=</span> <span class="mf">20.0</span><span class="p">,</span>              <span class="c1"># target pump specific suction</span>
+    <span class="n">pumpPratio</span> <span class="o">=</span> <span class="n">pumpPratio</span><span class="p">,</span>         <span class="c1"># guess for outlet-to-inlet pump pressure ratio</span>
+    <span class="n">pumpMarginPin</span> <span class="o">=</span> <span class="mf">0.15</span><span class="p">,</span>       <span class="c1"># margin inlet pump pressure for caviation</span>
+    <span class="n">pumpEfficiency</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>     <span class="c1"># pump efficiency</span>
+    <span class="n">pumpD</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>              <span class="c1"># the user can specify the pump impeller diameter</span>
+    <span class="n">turbMat</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>            <span class="c1"># turbine material</span>
+    <span class="n">turbDensity</span> <span class="o">=</span> <span class="mi">1500</span><span class="p">,</span>  <span class="c1"># 2000.0,      # turbine density [kg/m^3]</span>
+    <span class="n">turbStress</span> <span class="o">=</span> <span class="mf">300E+06</span><span class="p">,</span>     <span class="c1"># turbine density [Pa]</span>
+    <span class="n">turbType</span> <span class="o">=</span> <span class="s1">&#39;axial&#39;</span><span class="p">,</span>        <span class="c1"># turbine type [&#39;axial&#39;, &#39;radial&#39;]</span>
+    <span class="n">turbD</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>              <span class="c1"># turbine rotor diameter [m]</span>
+    <span class="n">turbRefPoint</span> <span class="o">=</span> <span class="s1">&#39;outlet&#39;</span><span class="p">,</span>   <span class="c1"># ref. point [inlt/outlet] for density calc.</span>
+    <span class="n">turbEfficiency</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>     <span class="c1"># turbine efficiency</span>
+    <span class="n">turbAxTaper</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>         <span class="c1"># Blade taper</span>
+    <span class="n">turbAxB02B</span> <span class="o">=</span> <span class="mf">4.0</span><span class="p">,</span>          <span class="c1"># inner-to-outer radius of the disk ratio</span>
+    <span class="c1"># strsF = 0.2,               # stress factor for turbine</span>
+    <span class="n">safetyF</span> <span class="o">=</span> <span class="mf">1.2</span><span class="p">,</span>             <span class="c1"># safety factor for turbine</span>
+    <span class="n">gearR</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>               <span class="c1"># gear ratio turbine-to-pump speed</span>
+    <span class="n">cMesh</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>                <span class="c1"># coarse mesh division for finding optimum eff.</span>
+    <span class="n">fMesh</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>                <span class="c1"># fine mesh division for finding optimum eff.</span>
+    <span class="p">)</span>  <span class="c1"># turbopump</span>
+
+<span class="c1"># Add power in the pump and turbine</span>
+
+
+<span class="c1"># validate that all attributes are defined-------------------------------------</span>
+<span class="n">ssInps</span><span class="o">.</span><span class="n">ValidateInputs</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">ntpSystem</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Project Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributors.html">Developer Team</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">User’s Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Methodology/index.html">Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../develop/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">User’s Manual</a><ul>
+      <li>Previous: <a href="Material.html" title="previous chapter">Adding New Materials</a></li>
+      <li>Next: <a href="outputresults.html" title="next chapter">Print results</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Dan Kotlyar.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/Manual/steadystate.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

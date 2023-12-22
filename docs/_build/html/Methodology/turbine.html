@@ -1,0 +1,150 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>References &#8212; ntpSystem 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Developer’s Guide" href="../develop/index.html" />
+    <link rel="prev" title="Pump" href="pump.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <p id="meth-turbine"><strong>Turbine Efficiency</strong></p>
+<hr class="docutils" />
+<p>The approach numerically obtains the specific diameter of the turbine by
+guessing a specific diameter, <span class="math notranslate nohighlight">\(D_{s_{guess}}\)</span>, and comparing the error in the calculated
+turbine efficiency and the desired turbine efficiency. The methodology was
+obtained from <a class="reference internal" href="turbopump.html#turbopump-references"><span class="std std-ref">Balje, Part A. 1962</span></a>. First, the turbine inlet efficiency is found
+using hydrogen property tables with the input values of the inlet pressure and enthalpy. An additional term,
+<span class="math notranslate nohighlight">\(\gamma_{\rho}\)</span>, the ratio of outlet and inlet densities, is used as an argument
+to Newton solve for the specific diameter. To begin solving for the parameters for the turbine efficiency a
+few parameters must first be calculated, including <span class="math notranslate nohighlight">\(\frac{h}{D}\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\frac{h}{D} = \frac{1}{D_s} ({\frac{1}{D_s [460 + (\frac{n_s D_{s}^2}{10})^2]}})^\frac{1}{3}\]</div>
+<p>Next, the nozzle angle, <span class="math notranslate nohighlight">\(\alpha_2\)</span> [radians] is needed:</p>
+<div class="math notranslate nohighlight">
+\[\alpha_2 = \arcsin({\frac{\frac{\gamma_3}{\gamma_2}}{\pi \frac{h}{D} (1 - \frac{h}{D}) D_{s}^2 \psi_N \sqrt{2g}}})\]</div>
+<p>where,
+<span class="math notranslate nohighlight">\(\frac{\gamma_2}{\gamma_3}\)</span> is representative of the ratio of densities present across the rotor and
+<span class="math notranslate nohighlight">\(\psi_N\)</span> is the velocity coefficient of the nozzle with a given value of 0.96, whereas the velocity coefficient
+of the rotor, <span class="math notranslate nohighlight">\(\psi_R\)</span>, is calculated.</p>
+<div class="math notranslate nohighlight">
+\[\psi_R = [1 - \frac{\cot{\alpha_2}}{30} + \frac{n_s D_s \sqrt{1 - 2 \frac{h}{D} + 2(\frac{h}{D})^2}}{\sin{\alpha_2} \psi_N 4620}][1 - \frac{0.24}{\frac{h}{D}}]\]</div>
+<p>Finally, the efficiency of the turbine, <span class="math notranslate nohighlight">\(\eta_t\)</span> can be found:</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}\eta_t = \frac{n_s D_s \sqrt{1 - 2(\frac{h}{D}) + 2(\frac{h}{D})^2}}{77}[1 + \psi_R][\psi_N \cos{\alpha_2}
+- \frac{n_s D_s \sqrt{1 - 2(\frac{h}{D}) + 2(\frac{h}{D})^2}}{154}]\\- \frac{n_{s}^3 D_{s}^5 16 \beta^{\star} (1 - 2 \frac{h}{D})^5}{154^3}\end{aligned}\end{align} \]</div>
+<p>where <span class="math notranslate nohighlight">\(\beta^{\star}\)</span> denotes the friction coefficient of a wheel-disk which has a value of <span class="math notranslate nohighlight">\(3 \times 10^{-3}\)</span>
+for a large Reynolds number.</p>
+<section id="references">
+<span id="turbine-references"></span><h1>References<a class="headerlink" href="#references" title="Permalink to this heading">¶</a></h1>
+<p>O.E. Balje, “A study on design criteria and matching of turbomachines Part B: Compressor and Pump Performance and Matching of Turbocomponets”, Journal of Engineering for Power, (1962).</p>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">ntpSystem</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Project Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributors.html">Developer Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Manual/index.html">User’s Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../develop/index.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Methodology</a><ul>
+      <li>Previous: <a href="pump.html" title="previous chapter">Pump</a></li>
+      <li>Next: <a href="../develop/index.html" title="next chapter">Developer’s Guide</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Dan Kotlyar.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/Methodology/turbine.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
