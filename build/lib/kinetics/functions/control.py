@@ -1,9 +1,10 @@
 """control.py
 
-Define rules to control the dynamic behavior during startups.
-The control rules defined here are only meant to control chamber
-pressure and temperature.
+Define rules to control the dynamic external reactivity given to kinetics
+solvers
 
+@author: Matt Krecicki
+@email: matthewkrecicki@gmail.com
 
 """
 
@@ -18,11 +19,16 @@ from ntpSystem.functions.state import State
 # Possible functions:
     # linear:: ax + b
     # exponential:: a*exp(bx)+c
-SHAPE_FUNCTIONS = ["linear", "exponential"]
-NUM_COEFF = {"linear": 2, "exponential": 3}
+    # polynominal a*x^n + b*x^(n-1) .....
+SHAPE_FUNCTIONS = ["linear", "exponential", "polynominal"]
+
+NUM_COEFF = {"linear": 2, "exponential": 3, "polynominal": None}
+
 # link between the functions and its intergal function
 INTERGRAL_FUNCS = {"linear": "linearIntegral",
-                   "exponential": "exponentialIntegral"}
+                   "exponential": "exponentialIntegral",
+                   "polynominal": "polynominalIntegral"}
+
 
 class shapeFunctions:
     """pre-defined shape functions"""
@@ -39,7 +45,8 @@ class shapeFunctions:
     def linearIntegral(self, x, coeff):
         """integral of linear function"""
         return (coeff[0]/2)*x**2 + coeff[1]*x
-        
+    
+    
     def exponential(self, x, coeff):
         """linear function"""
         return coeff[0]*np.exp(coeff[1]*x) + coeff[2]
@@ -47,7 +54,18 @@ class shapeFunctions:
     
     def exponentialIntegral(self, x, coeff):
         """integral of linear function"""
-        return (coeff[0]/coeff[1])*np.exp(coeff[1]*x) + coeff[2]*x     
+        return (coeff[0]/coeff[1])*np.exp(coeff[1]*x) + coeff[2]*x   
+    
+    
+    def polynominal(self, x, coeff):
+        """polynomial function"""
+        return np.polyval(coeff, x)
+    
+    
+    def polynominalIntegral(self, x, coeff):
+        """integral of polynominal function"""
+        return np.polyint(coeff)(x)
+        
     
     
 class generalControlRule(shapeFunctions):
@@ -89,11 +107,12 @@ class generalControlRule(shapeFunctions):
         self.funcTypes = funcTypes
         self.coeffs = coeffs
         self.tends = tends  # time interval bounds
-        self._checkInputs()
+        self.__checkInputs()
         
         self.tends = np.array(self.tends)
     
-    def _checkInputs(self):
+    
+    def __checkInputs(self):
         """check validity of variables"""
         
         # variables must be of a list type
@@ -117,7 +136,8 @@ class generalControlRule(shapeFunctions):
         tendsArray = np.array(self.tends)
         _issortedarray(tendsArray, "Intervals end times (tends)")
         _ispositiveArray(tendsArray, "Intervals end times (tends)")
-        
+    
+    
     def evaluate(self, t):
         """evaluate of the function at a specific time point"""
         
@@ -174,114 +194,3 @@ class generalControlRule(shapeFunctions):
                     
         return y 
 
-
-
-# -----------------------------------------------------------------------------
-#                 OLD CONTROL RULES (NOT USED ANYMORE)
-#                   Written by Vignesh Manickam
-# -----------------------------------------------------------------------------
-
-
-class ControlRule:
-    """
-    Initializes ControlRule class to handle rotation of the
-    control drums and mass flow transients.
-    """
-
-    def __init__(self, default: float = 0.0):
-        self.default = default
-
-    def __add__(self, other):
-        if isinstance(other, int) and other == 0:
-            return self
-        if not isinstance(other, ControlRule):
-            raise ValueError('Addition not defined for ControlRule and type: {}'.format(type(other)))
-        rules = self.rules if isinstance(self, CompositeControlRule) else [self]
-        if isinstance(other, CompositeControlRule):
-            rules.extend(other.rules)
-        else:
-            rules.append(other)
-        return CompositeControlRule(rules=rules)
-
-    def __radd__(self, other):
-        return self + other
-
-    def rule_applies(self, t: float, state: State):
-        raise NotImplementedError
-
-    def drum_speed(self, t: float, state: State):
-        raise NotImplementedError
-
-    def demand_pressure(self, t: float, state: State):
-        raise NotImplementedError
-
-    def demand_temperature(self, t: float, state: State):
-        raise NotImplementedError
-
-
-class LinearControlRule(ControlRule):
-    """
-    LinearControlRule class allows for ramping the speed of
-    the control drum position based on y=mx+b. Here the user
-    can define the start time, ``t_min`` and finishing time,
-    ``t_max`` of the control drum rotation. The rule_applies
-    function verifies that these time bounds are within the time
-    of the overall simulation.
-    """
-
-    def __init__(self, coeff: float, const: float, t_min: float = None,
-                 t_max: float = None, default: float = 0.0):
-        super().__init__(default=default)
-        self.coeff = coeff
-        self.const = const
-        self.t_min = t_min
-        self.t_max = t_max
-
-    def __repr__(self):
-        t_boundary_string = ('None' if self.t_min is None else '{:.1f}'.format(self.t_min) + ', ') + \
-                            ('None' if self.t_max is None else '{:.1f}'.format(self.t_max))
-        return 'LinearControlRule({:.1f}, {:.1f}, {})'.format(self.coeff, self.const, t_boundary_string)
-
-    def rule_applies(self, t: float, state: State):
-        return ((self.t_min is not None and t >= self.t_min) or self.t_min is None) and \
-               ((self.t_max is not None and t <= self.t_max) or self.t_max is None)
-
-    def drum_speed(self, t: float, state: State):
-        if self.rule_applies(t, state):
-            return self.coeff * t + self.const
-        return self.default
-
-    def demand_pressure(self, t: float, state: State):
-        if self.rule_applies(t, state):
-            return self.coeff * t + self.const
-        return self.default
-
-    def demand_temperature(self, t: float, state: State):
-        if self.rule_applies(t, state):
-            return self.coeff * t + self.const
-        return self.default
-
-
-class CompositeControlRule(ControlRule):
-    """
-    CompositeControlRule allows for the linear combination
-    of multiple LinearControlRules. That is the user can define
-    multiple control drum rotations in one single simulation. In order
-    to this the user, just needs to ``+`` the LinearControlRules together
-    when defining drum speed.
-    """
-
-    def __init__(self, rules: typing.Tuple[ControlRule]):
-        self.rules = rules
-
-    def rule_applies(self, t: float, state: State):
-        return any(rule.rule_applies(t, state) for rule in self.rules)
-
-    def drum_speed(self, t: float, state: State):
-        return sum(rule.drum_speed(t, state) for rule in self.rules)
-
-    def demand_pressure(self, t: float, state: State):
-        return sum(rule.demand_pressure(t, state) for rule in self.rules)
-
-    def demand_temperature(self, t: float, state: State):
-        return sum(rule.demand_pressure(t, state) for rule in self.rules)

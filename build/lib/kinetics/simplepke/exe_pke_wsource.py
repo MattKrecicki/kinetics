@@ -27,7 +27,7 @@ Q = 200                   #MeV per fission
 # Generate reactivity scenario
 # -----------------------------------------------------------------------------
 rhoi = -0.05  # initial negative reactivity
-simulationTime = 300                                 # seconds
+simulationTime = 800                                   # seconds
 npoints = 500                                          # number of time points
 timepoints = np.linspace(0, simulationTime, npoints)   # absolute time vector
 
@@ -35,10 +35,10 @@ timepoints = np.linspace(0, simulationTime, npoints)   # absolute time vector
 # define external reactivity function
 def externalrho(t):
     
-    if t > 0.5 and t < 50.0:
-        rhoext = 0.001*t
+    if t > 0.5 and t < 100.0:
+        rhoext = 0.00049*t
     else:
-        rhoext = 0.0
+        rhoext = 0.00049*100.0
         
     return rhoext 
 
@@ -55,7 +55,13 @@ pke.solve()
 
 lineplot([timepoints]*1, [pke.power],
          xlabel="Time, sec", ylabel="Reactor power, Watts",
-         markers=["None"]*1, linestyles=["--"]*1, label=["Total", "Source"],
+         markers=["None"]*1, linestyles=["--"]*1, colors=["black"],
+         grid=True)
+
+
+lineplot([timepoints[1:]]*1, [pke.totalrho[1:]],
+         xlabel="Time, sec", ylabel="Total reactivity, dk/k",
+         markers=["None"]*1, linestyles=["--"]*1, label=[r"$\rho$"],
          grid=True)
 
 

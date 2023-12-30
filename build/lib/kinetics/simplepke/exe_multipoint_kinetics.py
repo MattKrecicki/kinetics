@@ -59,7 +59,7 @@ def externalrho(t):
             
     return rhoext 
 
-
+"""
 # Execute the PKE solver
 # -----------------------------------------------------------------------------
 pke = twoRegionPKEwSource(rhoi=rhoi, rho=externalrho, beta=beta, lamda=lamda,
@@ -89,3 +89,4 @@ lineplot([timepoints]*6, [pke.dg1, pke.dg2, pke.dg3, pke.dg4, pke.dg5, pke.dg6],
                  "Group 6"])
 
 
+"""

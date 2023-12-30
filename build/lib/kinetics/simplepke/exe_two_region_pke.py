@@ -6,7 +6,7 @@ Executes the two-region PKE solver w/ external source
 """
 
 import numpy as np
-from two_region_pke_w_source import twoRegionPKEwSource
+from two_region_pke import twoRegionPKE
 from kinetics.functions.plotters import lineplot
 
 
@@ -20,21 +20,13 @@ promptLc = 38.6e-6
 promptLr = 91.2e-6
 
 #define transfer probablities
-f = 0.2380
 frc = 0.4877
 fcr = 0.4880
 
-#define external source
-# -----------------------------------------------------------------------------
-S0 = 37000000000          #1 Ci source, n/s
-epsilon = 0.2             #source is only 30% efficient in causing fissions
-Q = 200.0                 #MeV per fission
-
-
 # Generate reactivity scenario
 # -----------------------------------------------------------------------------
-rhoi = -0.05 # initial negative reactivity
-simulationTime = 9000                                   # seconds
+P0=10.0                                                #inital reactor power
+simulationTime = 2000                                  # seconds
 npoints = 500                                          # number of time points
 timepoints = np.linspace(0, simulationTime, npoints)   # absolute time vector
 
@@ -42,31 +34,28 @@ timepoints = np.linspace(0, simulationTime, npoints)   # absolute time vector
 # define external reactivity function
 def externalrho(t):
     
-    rhoadd = 0.04995
-    dt = 1.0
-    tstart = 100.0
+    rhoadd = 0.06*0.5
+    dt = 5.0
+    tstart = 10.0
     rate = rhoadd / dt
     
     if t > tstart and t < dt+tstart:
         rhoext = rate * (t-tstart)
-        
-    elif t >= dt+tstart:
-        rhoext = rhoadd
-        
     else:
         rhoext = 0.0
     
-            
+    rhoext = 0.0
+        
     return rhoext 
 
 
 # Execute the PKE solver
 # -----------------------------------------------------------------------------
-pke = twoRegionPKEwSource(rhoi=rhoi, rho=externalrho, beta=beta, lamda=lamda,
-                          promptLc=promptLc, promptLr=promptLr, f=f, frc=frc,
-                          fcr=fcr, S0=S0, Q=Q, epsilon=epsilon,
-                          timepoints=timepoints)
-pke.solve(rtol=1e-5)
+rtol = 1e-30
+pke = twoRegionPKE(rho=externalrho, beta=beta, lamda=lamda,
+                          promptLc=promptLc, promptLr=promptLr, frc=frc,
+                          fcr=fcr, P0=P0, timepoints=timepoints, rtol=rtol)
+pke.solve()
 
 
 # Plot results

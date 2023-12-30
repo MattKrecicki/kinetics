@@ -121,4 +121,9 @@ class PKEwSource:
         for i in range(self.groupsDN):
             setattr(self, "dg"+str(i+1), solution[:,1+i])
         
+        #compute total system reactivity
+        totalrho = []
+        for t in self.timepoints: totalrho.append(self.rho(t) + self.rhoi)
+        setattr(self, "totalrho", np.array(totalrho))
+        
         
