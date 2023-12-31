@@ -11,17 +11,22 @@ output containers for various kinetic solvers
 import h5py
 from kinetics.errors.checkerrors import _isstr
 
+
 # -----------------------------------------------------------------------------
 # ----- point kinetics solver outputs
 # -----------------------------------------------------------------------------
 
 
-class pointkineticscontainer:
+class pointkineticsOutputsContainer:
     """class contains outputs from point kinetics simulation and allows user to
     export and recover outputs"""
     
-    PKE_OUTPUTS = ["nt", "power", "dnt", "timepoints", "rho"]
-    SRC_PKE_OUTPUTS = []
+    PKE_OUTPUTS = ["nt", "power", "dnt", "timepoints", "rho", "flux"]
+    
+    SRC_PKE_OUTPUTS = ["nt", "power", "dnt", "timepoints", "rho", "flux"]
+    
+    TWO_PKE_OUTPUTS = ["ntc", "ntr", "power", "dnt", "timepoints", "rho",
+                       "fluxc", "fluxr"]
     
     
     def __init__(self, **kwargs):
@@ -41,13 +46,13 @@ class pointkineticscontainer:
             keys = self.PKE_OUTPUTS
         elif self.typ == "SPKE":
             keys = self.SRC_PKE_OUTPUTS
-
+        elif self.typ == "pke2region":
+            keys = self.TWO_PKE_OUTPUTS
         
         #export keys to h5 file
         with h5py.File(filename, "w") as f:
             for i in range(len(keys)):
                 f.create_dataset(keys[i], data=getattr(self, keys[i]))
-            
                 
     
     def recover(self, filename):

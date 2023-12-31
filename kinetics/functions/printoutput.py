@@ -10,13 +10,8 @@ file.
 """
 
 import os
-
 from datetime import datetime
-
-
-from ntpSystem.errors.checkerrors import _isstr, _inlist
-from ntpSystem.functions.steadystatesolver import COMPONENTS_DICT
-from ntpSystem.containers.steadyinputs import COMPONENTS_DICT as INPS_DICT
+from kineitcs.errors.checkerrors import _isstr, _inlist
 
 
 
@@ -194,48 +189,11 @@ def _checkerrors(dirpath, outputName, pmode):
 def _printLogo(txtFile):
     " print logo"
     txtFile.write("/////////////////////////////////////////////////////////\n") 
-    txtFile.write("     NUCLEAR THERMAL PROPULSION SYSTEM SOLVER            \n") 
-    txtFile.write("                 EXPANDER CYCLE                          \n") 
-    txtFile.write(" STEADY-STATE and TRANSIENT COMPUTATIONAL FRAMEWORK      \n") 
+    txtFile.write("                                                         \n") 
+    txtFile.write("       NUCLEAR KINEITCS COMPUTATIONAL FRAMEWORK          \n") 
     txtFile.write("                                                         \n") 
     txtFile.write("/////////////////////////////////////////////////////////\n") 
     txtFile.write("                                                         \n")
-    txtFile.write("                                                         \n")
-    txtFile.write("               ----------------                          \n")
-    txtFile.write("               \              /                          \n")
-    txtFile.write("                \   H2 Tank  /                           \n")
-    txtFile.write("                 ------------     pump         turbine   \n")
-    txtFile.write("                      |                 shaft   _        \n")
-    txtFile.write("                      v           /|___________/ |       \n")
-    txtFile.write("                       --------->| |___________| |       \n")
-    txtFile.write("                                  \|           \_|       \n")
-    txtFile.write("                                   |       -----^------- \n")
-    txtFile.write("                                   |      |             |\n")
-    txtFile.write("                      o------------v      |             |\n")
-    txtFile.write("                      |                   |             |\n")
-    txtFile.write("                      v                   |-----|><|---- \n")
-    txtFile.write("                      |                   |    bypass   |\n")
-    txtFile.write("                      |                   |             |\n")
-    txtFile.write("-------------<--------                    |             |\n")
-    txtFile.write("|                     |    Mix Tee        |             |\n")
-    txtFile.write("|     REFLECTOR------~~---->o-------------              |\n")
-    txtFile.write("|         ^           |     ^                           |\n")
-    txtFile.write("|         |           |     |          ----------------- \n")
-    txtFile.write("|         |           |     |          |                 \n")
-    txtFile.write("-----> NOZZLE         |     |          |                 \n")
-    txtFile.write("                      |     ^          v                 \n")
-    txtFile.write("                      |     |          |                 \n")
-    txtFile.write("                      |   Return       |                 \n")
-    txtFile.write("                      v     |        Fuel                \n")
-    txtFile.write("                    Supply  |          |                 \n")
-    txtFile.write("                      |     |          |                 \n")
-    txtFile.write("                       -----           v                 \n")
-    txtFile.write("                                    Chamber              \n")
-    txtFile.write("                                       |                 \n")
-    txtFile.write("                                       v                 \n")
-    txtFile.write("                                  Nozzle throat          \n")
-    txtFile.write("                                       |                 \n")
-    txtFile.write("                                       v                 \n")
     txtFile.write("                                                         \n")
 
 

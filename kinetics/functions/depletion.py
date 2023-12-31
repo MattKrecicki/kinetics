@@ -8,7 +8,6 @@ Created on Wed Dec  1 18:12:37 2021
 """
 
 import numpy as np
-from scipy.linalg import expm
 from scipy.integrate import odeint
 
 

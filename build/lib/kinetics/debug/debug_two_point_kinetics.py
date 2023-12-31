@@ -10,42 +10,60 @@ function debugs point kinetics solver
 
 
 import numpy as np
-from kinetics.functions.pointkinetics import pke
+from kinetics.functions.tworegionkinetics import pke2region
 from kinetics.functions.control import generalControlRule
-from kinetics.containers.outputs import pointkineticscontainer
+from kinetics.containers.inputs import pointkineticsInputsContainer
+from kinetics.containers.outputs import pointkineticsOutputsContainer
 from kinetics.functions.plotters import lineplot
-
 
 # define reactivity scenario
 timepoints = np.linspace(0.0, 100.0, 500)
 
 rhoext = generalControlRule(['linear', 'linear'],
-                            [[0.0, 0.0], [0.0, 0.003445]],
-                            [0.5, 10.0])
-
+                            [[0.0, 0.0], [0.0, 0.003]],
+                            [0.5, 20.0])
 
 # define point kinetics parameters
 beta = 0.00689 * np.array([0.033, 0.219, 0.196, 0.395, 0.115, 0.042])
 lamda = np.array([0.0124, 0.0305, 0.1110, 0.3011, 1.1400, 3.0100])
-promptL = 6E-05 
-P0 = 1e+3 #watts
-volume = 1.0 #m3
-nubar = 2.434
-Q = 200.0
-v = 1.86E+04 #m/s
+promptLc = 38.6e-6
+promptLr = 91.2e-6
 
+#define transfer probablities
+frc = 0.4877
+fcr = 0.4880
+
+P0 = 1e+3 #initial reactor power
+volumec = 1.0 #m3
+volumer = 1.0 #m3
+nubar = 2.434 #n/fission
+Q = 200.0 #MeV/fission
+vc = 1.86E+04 #m/s
+vr = 1E+04 #m/s
+
+#construct two-region kinetics inputs container
+inputs = \
+    pointkineticsInputsContainer(beta=beta, lamda=lamda, promptLc=promptLc, \
+        promptLr=promptLr, frc=frc, fcr=fcr, P0=P0, volumec=volumec, 
+        volumer=volumer, nubar=nubar, Q=Q, vc=vc, vr=vr, rhoext=rhoext,
+        timepoints=timepoints, typ="pke2region")
 
 # initalize point kinetics solver
-pkesolver = pke(beta=beta, lamda=lamda, promptL=promptL, P0=P0, volume=volume,
-                nubar=nubar, Q=Q, v=v, rhoext=rhoext, timepoints=timepoints)
+pkesolver = pke2region(inputs)
 
 # execute solver
-pkesolver.solve()
+pkesolver.solve(rtol=1e-8)
 
-#plot change in neutron population
+#plot change in reactor power
 lineplot([pkesolver.timepoints], [pkesolver.solution.power], markers=["None"],
          linestyles=["--"], grid=True, xlabel="Time, seconds",
          ylabel="Power, Watts")
+
+#plot change in neutron populations
+lineplot([pkesolver.timepoints]*2,
+         [pkesolver.solution.ntc, pkesolver.solution.ntr], markers=["None"]*2,
+         linestyles=["--"]*2, label=["core", "reflector"], grid=True,
+         xlabel="Time, seconds", ylabel="Neutron population, a.u.")
 
 #plot change in delayed neutron prescusors
 lineplot([pkesolver.timepoints]*6,
@@ -65,8 +83,8 @@ lineplot([pkesolver.timepoints], [pkesolver.solution.rho], markers=["None"],
 
 
 # export results to hdf5 file
-pkesolver.solution.export("pke.h5")
+pkesolver.solution.export("pke2region.h5")
 
 # test recovery of results
-res = pointkineticscontainer()
-res.recover("pke.h5")
+res = pointkineticsOutputsContainer()
+res.recover("pke2region.h5")

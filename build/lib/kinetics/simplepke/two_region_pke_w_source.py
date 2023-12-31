@@ -102,7 +102,7 @@ class twoRegionPKEwSource:
         
         # build diagonal
         np.fill_diagonal(mtxA, np.append(np.array([0.0, 0.0]), -self.lamda))
-            
+        
         mtxA[0, 2:] = self.lamda
         
         # build the first column precusor conc.

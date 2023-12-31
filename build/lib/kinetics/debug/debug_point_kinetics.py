@@ -24,7 +24,7 @@ rhoext = generalControlRule(['linear', 'linear'],
                             [0.5, 10.0])
 
 
-# define point kinetics instance
+# define point kinetics parameters
 beta = 0.00689 * np.array([0.033, 0.219, 0.196, 0.395, 0.115, 0.042])
 lamda = np.array([0.0124, 0.0305, 0.1110, 0.3011, 1.1400, 3.0100])
 promptL = 6E-05 
@@ -64,11 +64,9 @@ lineplot([pkesolver.timepoints], [pkesolver.solution.rho], markers=["None"],
          ylabel="Excess reactivity, dk/k")
 
 
-
-
 # export results to hdf5 file
-#pke.solution.export("pke.h5")
+pkesolver.solution.export("pke.h5")
 
 # test recovery of results
-#res = pointkineticscontainer()
-#res.recover("pke.h5")
+res = pointkineticscontainer()
+res.recover("pke.h5")

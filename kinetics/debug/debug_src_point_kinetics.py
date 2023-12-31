@@ -10,7 +10,7 @@ function debugs point kinetics solver
 
 
 import numpy as np
-from kinetics.functions.pointkinetics import pke
+from kinetics.functions.pointkinetics import srcpke
 from kinetics.functions.control import generalControlRule
 from kinetics.containers.outputs import pointkineticscontainer
 from kinetics.functions.plotters import lineplot
@@ -20,27 +20,32 @@ from kinetics.functions.plotters import lineplot
 timepoints = np.linspace(0.0, 100.0, 500)
 
 rhoext = generalControlRule(['linear', 'linear'],
-                            [[0.0, 0.0], [0.0, 0.003445]],
-                            [0.5, 10.0])
+                            [[0.0, 0.0], [0.0, 0.0]],
+                            [0.5, 20.0])
 
 
 # define point kinetics parameters
 beta = 0.00689 * np.array([0.033, 0.219, 0.196, 0.395, 0.115, 0.042])
 lamda = np.array([0.0124, 0.0305, 0.1110, 0.3011, 1.1400, 3.0100])
-promptL = 6E-05 
-P0 = 1e+3 #watts
+promptL = 6E-05 #seconds
+S0 = 3.7e+10 #n/s, 1 Ci source
+epsilon = 0.3 #source efficiency
+rhoi = -0.05     #dk/k
 volume = 1.0 #m3
-nubar = 2.434
-Q = 200.0
+nubar = 2.434 #n/fission
+Q = 200.0 #MeV/fission
 v = 1.86E+04 #m/s
 
+#
+nest = nubar * S0 * epsilon * (1 / (1+rhoi))
 
 # initalize point kinetics solver
-pkesolver = pke(beta=beta, lamda=lamda, promptL=promptL, P0=P0, volume=volume,
-                nubar=nubar, Q=Q, v=v, rhoext=rhoext, timepoints=timepoints)
+pkesolver = srcpke(beta=beta, lamda=lamda, promptL=promptL, S0=S0, rhoi=rhoi,
+                   epsilon=epsilon, volume=volume, nubar=nubar, Q=Q, v=v,
+                   rhoext=rhoext, timepoints=timepoints)
 
 # execute solver
-pkesolver.solve()
+pkesolver.solve(rtol=1e-10)
 
 #plot change in neutron population
 lineplot([pkesolver.timepoints], [pkesolver.solution.power], markers=["None"],
@@ -65,8 +70,8 @@ lineplot([pkesolver.timepoints], [pkesolver.solution.rho], markers=["None"],
 
 
 # export results to hdf5 file
-pkesolver.solution.export("pke.h5")
+pkesolver.solution.export("srcpke.h5")
 
 # test recovery of results
 res = pointkineticscontainer()
-res.recover("pke.h5")
+res.recover("srcpke.h5")
