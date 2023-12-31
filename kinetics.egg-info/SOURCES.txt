@@ -15,6 +15,7 @@ kinetics/debug/debug_controlrules.py
 kinetics/debug/debug_input_container.py
 kinetics/debug/debug_point_kinetics.py
 kinetics/debug/debug_src_point_kinetics.py
+kinetics/debug/debug_src_two_point_kinetics.py
 kinetics/debug/debug_two_point_kinetics.py
 kinetics/errors/__init__.py
 kinetics/errors/checkerrors.py

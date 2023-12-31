@@ -18,11 +18,10 @@ from kinetics.functions.plotters import lineplot
 
 
 # define reactivity scenario
-timepoints = np.linspace(0.0, 100.0, 500)
-
-rhoext = generalControlRule(['linear', 'linear'],
-                            [[0.0, 0.0], [0.001, 0.001]],
-                            [0.5, 20.0])
+timepoints = np.linspace(0.0, 150.0, 500)
+rhoext = generalControlRule(['linear', 'linear', 'linear'],
+                            [[0.0, 0.0], [0.001, 0.001], [0.0, 0.02083968]],
+                            [0.5, 20.0, 150.0])
 
 # define point kinetics parameters
 beta = 0.00689 * np.array([0.033, 0.219, 0.196, 0.395, 0.115, 0.042])
@@ -36,6 +35,7 @@ nubar = 2.434   #n/fission
 Q = 200.0       #MeV/fission
 v = 1.86E+04    #m/s
 
+
 # construct inputs container
 inputs = \
     pointkineticsInputsContainer(beta=beta, lamda=lamda, promptL=promptL, \
@@ -48,10 +48,16 @@ pkesolver = srcpke(inputs)
 # execute solver
 pkesolver.solve(rtol=1e-10)
 
-# plot change in neutron population
+# plot change in reactor power
 lineplot([pkesolver.inputs.timepoints], [pkesolver.outputs.power], markers=["None"],
          linestyles=["--"], grid=True, xlabel="Time, seconds",
          ylabel="Power, Watts")
+
+# plot change in neutron populations
+lineplot([pkesolver.inputs.timepoints],
+         [pkesolver.outputs.nt],
+         markers=["None"], linestyles=["--"], grid=True,
+         xlabel="Time, seconds", ylabel="Neutron population, a.u.")
 
 # plot change in delayed neutron prescusors
 lineplot([pkesolver.inputs.timepoints]*6,

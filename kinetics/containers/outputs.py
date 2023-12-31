@@ -28,6 +28,9 @@ class pointkineticsOutputsContainer:
     TWO_PKE_OUTPUTS = ["ntc", "ntr", "power", "dnt", "timepoints", "rho",
                        "fluxc", "fluxr"]
     
+    TWO_SRC_PKE_OUTPUTS = ["ntc", "ntr", "power", "dnt", "timepoints", "rho",
+                           "fluxc", "fluxr"]
+    
     
     def __init__(self, **kwargs):
         """function initalizes point kinetics container"""
@@ -48,6 +51,8 @@ class pointkineticsOutputsContainer:
             keys = self.SRC_PKE_OUTPUTS
         elif self.typ == "pke2region":
             keys = self.TWO_PKE_OUTPUTS
+        elif self.typ == "srcpke2region":
+            keys = self.TWO_PKE_OUTPUTS 
         
         #export keys to h5 file
         with h5py.File(filename, "w") as f:
@@ -59,7 +64,6 @@ class pointkineticsOutputsContainer:
         """function recovers solution from hdf5 file"""
         
         _isstr(filename, "hdf5 output file name")
-        
         with h5py.File(filename, "r+") as f:
             keys = list(f.keys())
             for key in keys: setattr(self, key, f[key][()])

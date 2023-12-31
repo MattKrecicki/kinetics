@@ -26,7 +26,7 @@ class pointkineticsInputsContainer:
     """
     
     # required keys for each point kinetics solver class
-    ALLOWED_TYPS = ["pke2region", "pke", "spke"]
+    ALLOWED_TYPS = ["pke2region", "srcpke2region", "pke", "spke"]
     
     #dict containing inputs descriptions and error checking info
     #format is the following:
@@ -140,6 +140,49 @@ class pointkineticsInputsContainer:
                         "are reported by solver", "seconds", False]}
     
     
+    DICT_TWO_SRC_PKE = \
+        {"beta": [np.ndarray, float, "delayed neutron group yields", "unitless",
+                  True],
+                
+         "lamda": [np.ndarray, float, "delayed neutron group decay constants",
+                   "1/seconds", True],
+                    
+         "promptLc": [float, None, "neutron mean generation time of the core"
+                      " region", "seconds", True],
+                
+         "promptLr": [float, None, "neutron mean generation time of the "
+                      "reflector region", "seconds", True],
+                
+         "S0": [float, None, "neutron source strength", "n/s", True],
+         
+         "epsilon": [float, None, "Source efficiency", "fissions/source n",
+                     True],
+         
+         "rhoi": [float, None, "initial excess reactivity", "dk/k", False],
+                
+         "volumec": [float, None, "volume of the core region", "m3", True],
+                
+         "volumer": [float, None, "volume of the reflector region", "m3", True],
+                
+         "Q": [float, None, "average recoverable energy per fission",
+               "MeV/fission", True],
+                
+         "nubar": [float, None, "average number of neutrons released per "
+                   "fission", "n/fission", True],
+                    
+         "vc": [float, None, "average core neutron velocity", "meters/s", True],
+                    
+         "vr": [float, None, "average reflector neutron velocity", "meters/s",
+                True],
+                    
+         "rhoext": [object, None, "function that defines excess reactivity as"
+                    " a function of time. Should be an instance of the general"
+                    " control rules class", False],
+                    
+         "timepoints": [np.ndarray, float, "time points for which results "
+                        "are reported by solver", "seconds", False]}
+    
+    
     def __init__(self, **kwargs):
         """function initialize point kinetics inputs container"""
         
@@ -152,6 +195,8 @@ class pointkineticsInputsContainer:
         
         if self.typ == "pke2region":
             Dict = self.DICT_TWO_PKE
+        elif self.typ == "srcpke2region":
+            Dict = self.DICT_TWO_SRC_PKE
         elif self.typ == "pke":
             Dict = self.DICT_PKE
         elif self.typ == "spke":
