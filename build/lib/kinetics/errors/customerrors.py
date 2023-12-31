@@ -34,8 +34,10 @@ def _checkdict(Dict, inputObj):
                 _isobject(val, Dict[key][1], Dict[key][2])
                 if Dict[key][4]:
                     _ispositive(val, Dict[key][2])
+                    
         elif Dict[key][0] is not object:
-            _ispositive(var, Dict[key][2])
+            if Dict[key][4]:
+                _ispositive(var, Dict[key][2])
 
 
 def _pkecheck(inputObj):

@@ -26,17 +26,7 @@ class pointkineticsInputsContainer:
     """
     
     # required keys for each point kinetics solver class
-    ALLOWED_TYPS = ["pke2region"]
-    
-    REQ_KEYS_SRC_PKE = ['beta', 'lamda', 'promptL', 'rhoi', 'S0', 'epsilon',
-                        'rhoi', 'volume', 'Q', 'rhoext', 'timepoints']
-    
-    REQ_KEYS_PKE = ['beta', 'lamda', 'promptL', 'P0', 'volume', 'Q', 'nubar',
-                    'rhoext', 'timepoints']
-    
-    REQ_KEYS_TWO_PKE = ['beta', 'lamda', 'promptLc', 'promptLr', 'fcr', 'frc',
-                        'P0', 'volumec', 'volumer', 'Q', 'nubar', 'vc', 'vr',
-                        'rhoext', 'timepoints']
+    ALLOWED_TYPS = ["pke2region", "pke", "spke"]
     
     #dict containing inputs descriptions and error checking info
     #format is the following:
@@ -47,44 +37,107 @@ class pointkineticsInputsContainer:
     #   idx 3 is the units of the input
     #   idx 4 is positive value required error checking flag
     
-    DICT_TWO_PKE = {"beta": [np.ndarray, float, "delayed neutron group yields",
-                             "unitless", True],
+    DICT_PKE = \
+        {"beta": [np.ndarray, float, "delayed neutron group yields", "unitless",
+                  True],
                 
-                    "lamda": [np.ndarray, float, "delayed neutron group decay constants",
-                              "1/seconds", True],
+         "lamda": [np.ndarray, float, "delayed neutron group decay constants",
+                   "1/seconds", True],
                     
-                    "promptLc": [float, None, "neutron mean generation time of the "
-                                 "core region", "seconds", True],
+         "promptL": [float, None, "neutron mean generation time of the core"
+                      " region", "seconds", True],
                 
-                    "promptLr": [float, None, "neutron mean generation time of the "
-                                 "reflector region", "seconds", True],
+         "P0": [float, None, "inital reactor power", "watts", True],
+         
+         "volume": [float, None, "volume of the core region", "m3", True],
+         
+         "Q": [float, None, "average recoverable energy per fission",
+               "MeV/fission", True],
                 
-                    "P0": [float, None, "inital reactor power", "watts", True],
-                
-                    "volumec": [float, None, "volume of the core region", "m3",
-                                True],
-                
-                    "volumer": [float, None, "volume of the reflector region",
-                                "m3", True],
-                
-                    "Q": [float, None, "average recoverable energy per fission",
-                          "MeV/fission", True],
-                
-                    "nubar": [float, None, "average number of neutrons released per "
-                              "fission", "n/fission", True],
+         "nubar": [float, None, "average number of neutrons released per "
+                   "fission", "n/fission", True],
                     
-                    "vc": [float, None, "average core neutron velocity", 
-                           "meters/s", True],
+         "v": [float, None, "average core neutron velocity", "meters/s", True],
                     
-                    "vr": [float, None, "average reflector neutron velocity", 
-                           "meters/s", True],
+         "rhoext": [object, None, "function that defines excess reactivity as"
+                    " a function of time. Should be an instance of the general"
+                    " control rules class", False],
                     
-                    "rhoext": [object, None, "function that defines excess reactivity as"
-                               " a function of time. Should be an instance of the "
-                               "general control rules class", False],
+         "timepoints": [np.ndarray, float, "time points for which results "
+                        "are reported by solver", "seconds", False]}
+        
+    
+    DICT_SRC_PKE = \
+        {"beta": [np.ndarray, float, "delayed neutron group yields", "unitless",
+                  True],
+                
+         "lamda": [np.ndarray, float, "delayed neutron group decay constants",
+                   "1/seconds", True],
                     
-                    "timepoints": [np.ndarray, float, "time points for which results "
-                                   "are reported by solver", "seconds", False]}
+         "promptL": [float, None, "neutron mean generation time of the core"
+                      " region", "seconds", True],
+                
+         "S0": [float, None, "source neutron generation rate", "n/s", True],
+         
+         "epsilon": [float, None, "Source efficiency", "fissions/source n",
+                     True],
+         
+         "rhoi": [float, None, "initial excess reactivity", "dk/k", False],
+         
+         "volume": [float, None, "volume of the core region", "m3", True],
+         
+         "Q": [float, None, "average recoverable energy per fission",
+               "MeV/fission", True],
+                
+         "nubar": [float, None, "average number of neutrons released per "
+                   "fission", "n/fission", True],
+                    
+         "v": [float, None, "average core neutron velocity", "meters/s", True],
+                    
+         "rhoext": [object, None, "function that defines excess reactivity as"
+                    " a function of time. Should be an instance of the general"
+                    " control rules class", False],
+                    
+         "timepoints": [np.ndarray, float, "time points for which results "
+                        "are reported by solver", "seconds", False]}
+    
+    
+    DICT_TWO_PKE = \
+        {"beta": [np.ndarray, float, "delayed neutron group yields", "unitless",
+                  True],
+                
+         "lamda": [np.ndarray, float, "delayed neutron group decay constants",
+                   "1/seconds", True],
+                    
+         "promptLc": [float, None, "neutron mean generation time of the core"
+                      " region", "seconds", True],
+                
+         "promptLr": [float, None, "neutron mean generation time of the "
+                      "reflector region", "seconds", True],
+                
+         "P0": [float, None, "inital reactor power", "watts", True],
+                
+         "volumec": [float, None, "volume of the core region", "m3", True],
+                
+         "volumer": [float, None, "volume of the reflector region", "m3", True],
+                
+         "Q": [float, None, "average recoverable energy per fission",
+               "MeV/fission", True],
+                
+         "nubar": [float, None, "average number of neutrons released per "
+                   "fission", "n/fission", True],
+                    
+         "vc": [float, None, "average core neutron velocity", "meters/s", True],
+                    
+         "vr": [float, None, "average reflector neutron velocity", "meters/s",
+                True],
+                    
+         "rhoext": [object, None, "function that defines excess reactivity as"
+                    " a function of time. Should be an instance of the general"
+                    " control rules class", False],
+                    
+         "timepoints": [np.ndarray, float, "time points for which results "
+                        "are reported by solver", "seconds", False]}
     
     
     def __init__(self, **kwargs):
@@ -93,10 +146,16 @@ class pointkineticsInputsContainer:
         self.__dict__.update(kwargs)
         self.__checkinputs()
         
+        
     def __getdict(self):
+        """utility function returns input dict"""
         
         if self.typ == "pke2region":
             Dict = self.DICT_TWO_PKE
+        elif self.typ == "pke":
+            Dict = self.DICT_PKE
+        elif self.typ == "spke":
+            Dict = self.DICT_SRC_PKE
         
         return Dict
     

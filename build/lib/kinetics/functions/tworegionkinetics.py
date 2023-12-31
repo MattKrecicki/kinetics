@@ -79,7 +79,7 @@ class pke2region:
         mtxA[2:self.inputs.groupsDN+2, 0] = self.inputs.beta / self.inputs.promptLc
         
         # build the first row for core neutron population
-        alpha1 = (rho - self.inputs.betaTot - self.f * (1 - self.inputs.betaTot)) / (self.inputs.promptLc * (1 - self.inputs.f))
+        alpha1 = (rho - self.inputs.betaTot - self.inputs.f * (1 - self.inputs.betaTot)) / (self.inputs.promptLc * (1 - self.inputs.f))
         alpha2 = (self.inputs.frc * (1 - rho)) / (self.inputs.promptLr * (1 - self.inputs.f))
         
         # build the second row for the reflector neutron population
@@ -127,7 +127,7 @@ class pke2region:
         rho = np.array(rho)
         
         #initalize solution container
-        self.solution = \
+        self.outputs = \
             pointkineticsOutputsContainer(timepoints=self.inputs.timepoints,\
                 ntc=ntc, ntr=ntr, dnt=dnt, power=power, rho=rho, fluxc=fluxc,
                 fluxr=fluxr, typ="pke2region")

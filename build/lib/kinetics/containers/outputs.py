@@ -42,9 +42,9 @@ class pointkineticsOutputsContainer:
         _isstr(filename, "hdf5 output file name")
         
         #determine which set of values need to be exported
-        if self.typ == "PKE":
+        if self.typ == "pke":
             keys = self.PKE_OUTPUTS
-        elif self.typ == "SPKE":
+        elif self.typ == "spke":
             keys = self.SRC_PKE_OUTPUTS
         elif self.typ == "pke2region":
             keys = self.TWO_PKE_OUTPUTS

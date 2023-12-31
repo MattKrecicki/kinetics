@@ -55,21 +55,21 @@ pkesolver = pke2region(inputs)
 pkesolver.solve(rtol=1e-8)
 
 #plot change in reactor power
-lineplot([pkesolver.timepoints], [pkesolver.solution.power], markers=["None"],
+lineplot([pkesolver.inputs.timepoints], [pkesolver.outputs.power], markers=["None"],
          linestyles=["--"], grid=True, xlabel="Time, seconds",
          ylabel="Power, Watts")
 
 #plot change in neutron populations
-lineplot([pkesolver.timepoints]*2,
-         [pkesolver.solution.ntc, pkesolver.solution.ntr], markers=["None"]*2,
+lineplot([pkesolver.inputs.timepoints]*2,
+         [pkesolver.outputs.ntc, pkesolver.outputs.ntr], markers=["None"]*2,
          linestyles=["--"]*2, label=["core", "reflector"], grid=True,
          xlabel="Time, seconds", ylabel="Neutron population, a.u.")
 
 #plot change in delayed neutron prescusors
-lineplot([pkesolver.timepoints]*6,
-         [pkesolver.solution.dnt[0,:], pkesolver.solution.dnt[1,:],
-          pkesolver.solution.dnt[2,:], pkesolver.solution.dnt[3,:],
-          pkesolver.solution.dnt[4,:], pkesolver.solution.dnt[5,:]],
+lineplot([pkesolver.inputs.timepoints]*6,
+         [pkesolver.outputs.dnt[0,:], pkesolver.outputs.dnt[1,:],
+          pkesolver.outputs.dnt[2,:], pkesolver.outputs.dnt[3,:],
+          pkesolver.outputs.dnt[4,:], pkesolver.outputs.dnt[5,:]],
          label=["Group 1", "Group 2", "Group 3",
                 "Group 4", "Group 5", "Group 6"],
          markers=["None"]*6, loc="upper right",
@@ -77,13 +77,13 @@ lineplot([pkesolver.timepoints]*6,
          ylabel="Delay neutron precusor conc., a.u.")
 
 #plot total excess reactivity as a function of time
-lineplot([pkesolver.timepoints], [pkesolver.solution.rho], markers=["None"],
+lineplot([pkesolver.inputs.timepoints], [pkesolver.outputs.rho], markers=["None"],
          linestyles=["--"], grid=True, xlabel="Time, seconds",
          ylabel="Excess reactivity, dk/k")
 
 
 # export results to hdf5 file
-pkesolver.solution.export("pke2region.h5")
+pkesolver.outputs.export("pke2region.h5")
 
 # test recovery of results
 res = pointkineticsOutputsContainer()
