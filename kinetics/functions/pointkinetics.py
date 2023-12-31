@@ -55,7 +55,7 @@ REQ_KEYS_PKE = ['beta', 'lamda', 'promptL', 'P0', 'volume', 'Q', 'nubar',
                 'rhoext', 'timepoints']
 
 
-class pointkinetics:
+class pke:
     
     
     def __init__(self, **kwargs):
@@ -131,7 +131,7 @@ class pointkinetics:
                 power=power, rho=rho, typ="PKE")
     
     
-    def solve(self, rtol=1e-5):
+    def solve(self, rtol=1e-10):
         """function defined kinetics"""
         
         _ispositive(rtol, "relative tolerance of time derivative integrator")
@@ -187,7 +187,7 @@ REQ_SRC_PKE = ['beta', 'lamda', 'promptL', 'rhoi', 'S0', 'epsilon', 'volume',
                'Q', 'rhoext', 'timepoints']
 
 
-class sourcepointkinetics:
+class srcpke:
     
     
     def __init__(self, **kwargs):

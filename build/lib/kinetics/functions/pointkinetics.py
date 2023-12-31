@@ -12,8 +12,13 @@ MEV_2_J = 1.60218e-13
 import numpy as np
 from scipy.integrate import odeint
 from scipy.optimize import root
-from kinetics.errors.checkerrors import _isnegative, _inrange
-from kinetics.containers.outputs import pointkineticsoutputs
+from kinetics.errors.checkerrors import _isnegative, _inrange, _ispositive
+from kinetics.containers.outputs import pointkineticscontainer
+
+
+# -----------------------------------------------------------------------------
+# ----- point kinetics solver class 
+# -----------------------------------------------------------------------------
 
 
 KEYS_PKE = {"beta": [list, float, "delayed neutron group yields, unitless"],
@@ -50,7 +55,7 @@ REQ_KEYS_PKE = ['beta', 'lamda', 'promptL', 'P0', 'volume', 'Q', 'nubar',
                 'rhoext', 'timepoints']
 
 
-class pointkinetics:
+class pke:
     
     
     def __init__(self, **kwargs):
@@ -70,8 +75,8 @@ class pointkinetics:
     def __solveinitialconditions(self):
         """function solves initial conditions"""
         
-        #convert power to flux
-        self.n0 = () / (self.Q * MEV_2_J)
+        #convert power to total neutron population
+        self.n0 = (self.P0 * self.nubar * self.promptL) / (self.Q * MEV_2_J)
         
         #detemerine inital reactor power and precusor concentrations
         x0 = self.n0*np.append(1, self.beta/self.lamda/self.promptL)
@@ -87,8 +92,9 @@ class pointkinetics:
         
         #fill diagonal with decay constants
         np.fill_diagonal(mtxA, np.append(0, -self.lamda))
-            
-        mtxA[0,:] = np.append((self.rhoext(t)-self.betaTot)/self.promptL, self.lamda)
+        
+        mtxA[0,:] = \
+            np.append((self.rhoext.evaluate(t)-self.betaTot)/self.promptL, self.lamda)
         
         # build the first column
         mtxA[1:self.groupsDN+1, 0] = self.beta / self.promptL
@@ -99,20 +105,50 @@ class pointkinetics:
     def __dxdt(self, x0, t):
         """function evaluates the time derv. of the system"""
         
-        return np.dot(self._generatematrix(x0, t), x0)
+        return np.dot(self.__constructmatrix(t), x0)
     
     
-    def solve(self):
+    def __postprocess(self, solution):
+        """function performs post processing routines"""
+        
+        #seperate out delayed neutron precusors
+        dnt = solution[:,1:].T
+        
+        #seperate out total neutron population
+        nt = solution[:,0]
+        
+        #convert neutron population into power
+        power = (nt * self.Q * MEV_2_J) / (self.nubar * self.promptL)
+        
+        #obtain time dependent external reactivity
+        rho = []
+        for t in self.timepoints: rho.append(self.rhoext.evaluate(t))
+        rho = np.array(rho)
+        
+        #initalize solution container
+        self.solution = \
+            pointkineticscontainer(timepoints=self.timepoints, nt=nt, dnt=dnt,\
+                power=power, rho=rho, typ="PKE")
+    
+    
+    def solve(self, rtol=1e-10):
         """function defined kinetics"""
+        
+        _ispositive(rtol, "relative tolerance of time derivative integrator")
         
         # obtain initial conditions
         x0 = self.__solveinitialconditions()
         
         # obtain solution over defined transient
-        self.solution = odeint(self._dxdt, x0, self.timepoints)
+        solution = odeint(self.__dxdt, x0, self.timepoints, rtol=rtol)
         
-        # send array to solution object
-        pointkineticsoutputs()
+        # run post-processing features
+        self.__postprocess(solution)
+
+
+# -----------------------------------------------------------------------------
+# ----- source driven point kinetics solver class 
+# -----------------------------------------------------------------------------
 
 
 KEYS_SRC_PKE = {"beta": [list, float, "delayed neutron group yields, unitless"],

@@ -56,11 +56,8 @@ class pointkineticscontainer:
         _isstr(filename, "hdf5 output file name")
         
         with h5py.File(filename, "r+") as f:
-            
             keys = list(f.keys())
-            
-            for key in keys:
-                setattr(self, key, f[key][()])
+            for key in keys: setattr(self, key, f[key][()])
             
     
         

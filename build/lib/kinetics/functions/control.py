@@ -174,7 +174,7 @@ class generalControlRule(shapeFunctions):
                 y1 = getattr(self, intgType)(Tend, self.coeffs[idx0])
                 # return the value of the integral
                 return y1 - y0    
-                
+            
             # start and end time are NOT in the same interval
             # Loop over all the relevant intervals
             for idx in range(idx0, idx1+1):
@@ -193,4 +193,5 @@ class generalControlRule(shapeFunctions):
                 y += (y1 - y0)
                     
         return y 
+    
 

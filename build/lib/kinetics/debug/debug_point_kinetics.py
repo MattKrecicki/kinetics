@@ -8,35 +8,67 @@ function debugs point kinetics solver
 
 """
 
+
 import numpy as np
-from kinetics.functions.pointkinetics import pointkinetics
+from kinetics.functions.pointkinetics import pke
 from kinetics.functions.control import generalControlRule
+from kinetics.containers.outputs import pointkineticscontainer
+from kinetics.functions.plotters import lineplot
 
 
-#define reactivity scenario
-timepoints = np.linspace(0.0, 100.0, 50)
-rhoext = generalControlRule(['linear'], [[0.0, 0.0]], [105.0])
+# define reactivity scenario
+timepoints = np.linspace(0.0, 100.0, 500)
+
+rhoext = generalControlRule(['linear', 'linear'],
+                            [[0.0, 0.0], [0.0, 0.003445]],
+                            [0.5, 10.0])
 
 
-#define point kinetics instance
-beta = 0.0075 * np.array([0.033, 0.219, 0.196, 0.395, 0.115, 0.042])
+# define point kinetics instance
+beta = 0.00689 * np.array([0.033, 0.219, 0.196, 0.395, 0.115, 0.042])
 lamda = np.array([0.0124, 0.0305, 0.1110, 0.3011, 1.1400, 3.0100])
-promptL = 6E-05
-P0 = 1.0
-volume = 1.0
+promptL = 6E-05 
+P0 = 1e+3 #watts
+volume = 1.0 #m3
 nubar = 2.434
 Q = 200.0
+v = 1.86E+04 #m/s
 
 
-#initalize point kinetics solver
-pke = \
-    pointkinetics(beta=beta, lamda=lamda, promptL=promptL, P0=P0, volume=volume,
-                  nubar=nubar, Q=Q, rhoext=rhoext)
+# initalize point kinetics solver
+pkesolver = pke(beta=beta, lamda=lamda, promptL=promptL, P0=P0, volume=volume,
+                nubar=nubar, Q=Q, v=v, rhoext=rhoext, timepoints=timepoints)
 
-#execute solver
-pke.solve()
+# execute solver
+pkesolver.solve()
 
-#export results to hdf5 file
+#plot change in neutron population
+lineplot([pkesolver.timepoints], [pkesolver.solution.power], markers=["None"],
+         linestyles=["--"], grid=True, xlabel="Time, seconds",
+         ylabel="Power, Watts")
+
+#plot change in delayed neutron prescusors
+lineplot([pkesolver.timepoints]*6,
+         [pkesolver.solution.dnt[0,:], pkesolver.solution.dnt[1,:],
+          pkesolver.solution.dnt[2,:], pkesolver.solution.dnt[3,:],
+          pkesolver.solution.dnt[4,:], pkesolver.solution.dnt[5,:]],
+         label=["Group 1", "Group 2", "Group 3",
+                "Group 4", "Group 5", "Group 6"],
+         markers=["None"]*6, loc="upper right",
+         linestyles=["--"]*6, grid=True, xlabel="Time, seconds",
+         ylabel="Delay neutron precusor conc., a.u.")
+
+#plot total excess reactivity as a function of time
+lineplot([pkesolver.timepoints], [pkesolver.solution.rho], markers=["None"],
+         linestyles=["--"], grid=True, xlabel="Time, seconds",
+         ylabel="Excess reactivity, dk/k")
 
 
-#test recovery of results
+
+
+# export results to hdf5 file
+#pke.solution.export("pke.h5")
+
+# test recovery of results
+#res = pointkineticscontainer()
+#res.recover("pke.h5")
