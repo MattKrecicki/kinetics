@@ -9,12 +9,101 @@ solvers
 """
 
 
-import typing
 import numpy as np
-from ntpSystem.errors.checkerrors import _isequallength, _inlist, _islist,\
-    _issortedarray, _ispositiveArray
-from ntpSystem.functions.state import State
+from scipy.interpolate import interp1d
+from kinetics.errors.checkerrors import _isequallength, _inlist, _islist,\
+    _issortedarray, _ispositiveArray, _isnonNegativeArray, _is1darray
 
+
+"""
+# -----------------------------------------------------------------------------
+# ----- reactivity device based on control rule
+# -----------------------------------------------------------------------------
+
+class reactivitydevicecontrolrule:
+    
+    
+    def __checkinputs(self):
+        
+        pass
+    
+    
+    def __init__(self, feedbackobj, position):
+        
+        self.feedbackobj = feedbackobj
+        self.position = position
+
+
+    def evaluate(self, t):
+        pass
+
+"""
+
+# -----------------------------------------------------------------------------
+# ----- point interpolated based control rule 
+# -----------------------------------------------------------------------------
+
+
+class interpolatedcontrolrule:
+    
+    
+    def __checkinputs(self):
+        """function runs basic error checking"""
+        
+        _isnonNegativeArray(self.timepoints, "time points")
+        _is1darray(self.reactivity, "reactivity as a function")
+        _isequallength(self.timepoints, len(self.reactivity),
+                       "time point array and reactivity array")
+        allowedTyps = ["linear", "nearest", "nearest-up", "zero", "slinear",
+                       "quadratic", "cubic", "previous", "next", "zero"]
+        _inlist(self.kind, "interpolate technique used", allowedTyps)
+        
+    
+    def __init__(self, timepoints, reactivity, kind="linear"):
+        """function initializes point based reactivity control rule
+        
+
+        Parameters
+        ----------
+        timepoints : np.1darray
+            timepoints for given reactivity values, in units of seconds.
+        reactivity : np.1darray
+            reactivity as a function of time, in units of dk/k.
+        kind : str
+            interpolation type used, the default is linear.
+
+        Returns
+        -------
+        None.
+
+        Notes
+        -----
+        If the time of simulation goes outside of the given timepoints the
+        excess reactivity will be set to zero.
+
+        """
+        
+        #setup class instance
+        self.timepoints = timepoints
+        self.reactivity = reactivity
+        self.kind = kind
+        self.__checkinputs()
+        
+        #generate interpolation function for transient analysis
+        self.__func = \
+            interp1d(self.timepoints, self.reactivity, kind=self.kind,
+                     bounds_error=False, fill_value=0.0) 
+
+    
+    def evaluate(self, t):
+        """function evaluates interpolated reactivity function"""
+        
+        return self.__func(t)
+
+
+# -----------------------------------------------------------------------------
+# ----- Shape function based control rule 
+# -----------------------------------------------------------------------------
 
 # Possible functions:
     # linear:: ax + b
@@ -68,8 +157,8 @@ class shapeFunctions:
         
     
     
-class generalControlRule(shapeFunctions):
-    """Define a general control rule
+class controlrule(shapeFunctions):
+    """Defines a control rule based on specific shape functions
 
     The general control rule can be applied to control
     chamber temperature and pressure only. Different time intervals can have

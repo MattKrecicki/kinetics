@@ -11,7 +11,7 @@ function debugs point kinetics solver
 
 import numpy as np
 from kinetics.functions.tworegionkinetics import pke2region
-from kinetics.functions.control import generalControlRule
+from kinetics.functions.control import controlrule
 from kinetics.containers.inputs import pointkineticsInputsContainer
 from kinetics.containers.outputs import pointkineticsOutputsContainer
 from kinetics.functions.plotters import lineplot
@@ -19,9 +19,8 @@ from kinetics.functions.plotters import lineplot
 # define reactivity scenario
 timepoints = np.linspace(0.0, 100.0, 500)
 
-rhoext = generalControlRule(['linear', 'linear'],
-                            [[0.0, 0.0], [0.0, 0.003]],
-                            [0.5, 20.0])
+rhoext = controlrule(['linear', 'linear'], [[0.0, 0.0], [0.0, 0.003]],
+                     [0.5, 20.0])
 
 # define point kinetics parameters
 beta = 0.00689 * np.array([0.033, 0.219, 0.196, 0.395, 0.115, 0.042])

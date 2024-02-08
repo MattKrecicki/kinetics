@@ -16,12 +16,44 @@ import numpy as np
 from scipy.integrate import odeint
 from scipy.optimize import root
 from kinetics.errors.checkerrors import _isnegative, _inrange, _ispositive
+from kinetics.errors.customerrors import _checkdict, _pkecheck 
 from kinetics.containers.outputs import pointkineticsOutputsContainer
 
 
 # -----------------------------------------------------------------------------
 # ----- point kinetics solver class 
 # -----------------------------------------------------------------------------
+
+
+PKE_INPUTS_DICT = \
+    {"beta": [np.ndarray, float, "delayed neutron fraction", "unitless", True],
+     
+     "lamda": [np.ndarray, float, "delay neutron group decay constant",
+               "1/seconds", True],
+     
+     "promptL": [float, None, "prompt neutron lifeime", "seconds", True],
+     
+     "P0": [float, None, "initial reactor power", "watts", True],
+     
+     "volume": [float, None, "total volume of reactor control volume",
+                "meters^3", True],
+     
+     "nubar": [float, None, "average number of neutrons produced per fission",
+               "neutrons/fission", True],
+     
+     "Q": [float, None, "Average recoverable energy released per fission",
+           "MeV/fission", True],
+     
+     "v": [float, None, "effective one-group neutron velocity", "meters/second",
+           True],
+     
+     "timepoints": [np.ndarray, float, "time points to return solution",
+                    "seconds", False],
+     
+     "rhoext": [object, None, "external reactivity control class", "n/a",
+                False],
+     
+     "typ": [str, None, "type of kinetic simulation desired", "n/a", False]}
 
 
 class pke:
@@ -43,7 +75,10 @@ class pke:
         if self.inputs.typ != "pke":
             raise TypeError("incorrect inputs container given: {}"\
                             .format(self.inputs.typ))
-    
+        
+        _pkecheck(self.inputs)
+        _checkdict(PKE_INPUTS_DICT, self.inputs)
+        
     
     def __solveinitialconditions(self):
         """function solves initial conditions"""
@@ -133,6 +168,43 @@ class pke:
 # -----------------------------------------------------------------------------
 
 
+SRC_PKE_INPUTS_DICT = \
+    {"beta": [np.ndarray, float, "delayed neutron fraction", "unitless", True],
+     
+     "lamda": [np.ndarray, float, "delay neutron group decay constant",
+               "1/seconds", True],
+     
+     "promptL": [float, None, "prompt neutron lifeime", "seconds", True],
+     
+     "S0": [float, None, "initial neutron source strength", "neutrons/second",
+            True],
+     
+     "epsilon": [float, None, "neutron source efficiency",
+                 "fissions/neutron emitted", True],
+     
+     "rhoi": [float, None, "initial reactivity of the reactor", "dk/k", False],
+     
+     "volume": [float, None, "total volume of reactor control volume",
+                "meters^3", True],
+     
+     "nubar": [float, None, "average number of neutrons produced per fission",
+               "neutrons/fission", True],
+     
+     "Q": [float, None, "Average recoverable energy released per fission",
+           "MeV/fission", True],
+     
+     "v": [float, None, "effective one-group neutron velocity", "meters/second",
+           True],
+     
+     "timepoints": [np.ndarray, float, "time points to return solution",
+                    "seconds", False],
+     
+     "rhoext": [object, None, "external reactivity control class", "n/a",
+                False],
+     
+     "typ": [str, None, "type of kinetic simulation desired", "n/a", False]}
+
+
 class srcpke:
     
     
@@ -152,6 +224,9 @@ class srcpke:
         if self.inputs.typ != "spke":
             raise TypeError("incorrect inputs container given: {}"\
                             .format(self.inputs.typ))
+        _pkecheck(self.inputs)
+        _checkdict(SRC_PKE_INPUTS_DICT, self.inputs)
+        
     
     
     def __findinitalpopulation(self, ni):

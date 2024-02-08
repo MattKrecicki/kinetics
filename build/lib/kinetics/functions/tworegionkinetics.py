@@ -15,13 +15,64 @@ MEV_2_J = 1.60218e-13
 import numpy as np
 from scipy.integrate import odeint
 from scipy.optimize import root
-from kinetics.errors.checkerrors import _ispositive
+from kinetics.errors.checkerrors import _ispositive, _inrange
 from kinetics.containers.outputs import pointkineticsOutputsContainer
+from kinetics.errors.customerrors import _checkdict, _pkecheck 
 
 
 # -----------------------------------------------------------------------------
 # ----- two region kinetics solver class 
 # -----------------------------------------------------------------------------
+
+
+PKE_2_REGION_DICT = \
+    {"beta": [np.ndarray, float, "delayed neutron fraction", "unitless", True],
+     
+     "lamda": [np.ndarray, float, "delay neutron group decay constant",
+               "1/seconds", True],
+     
+     "promptLc": [float, None, "prompt neutron lifeime of the core region",
+                  "seconds", True],
+     
+     "promptLr": [float, None, "prompt neutron lifeime of the reflector region",
+                  "seconds", True],
+     
+     "frc": [float, None,
+             "fraction of neutrons the reflector that return to the core"
+             "region", "unitless", True],
+     
+     "fcr": [float, None, "fraction of neutrons born in the core that reach "
+             "the reflector", "unitless", True],
+     
+     "P0": [float, None, "initial reactor power", "watts", True],
+     
+     "volumec": [float, None, "total volume of reactor core",
+                 "meters^3", True],
+     
+     "volumer": [float, None, "total volume of reactor reflector",
+                 "meters^3", True],
+     
+     "nubar": [float, None, "average number of neutrons produced per fission",
+               "neutrons/fission", True],
+     
+     "Q": [float, None, "Average recoverable energy released per fission",
+           "MeV/fission", True],
+     
+     "vc": [float, None,
+           "effective one-group neutron velocity of the core region",
+           "meters/second", True],
+     
+     "vr": [float, None,
+           "effective one-group neutron velocity of the reflector region",
+           "meters/second", True],
+     
+     "timepoints": [np.ndarray, float, "time points to return solution",
+                    "seconds", False],
+     
+     "rhoext": [object, None, "external reactivity control class", "n/a",
+                False],
+     
+     "typ": [str, None, "type of kinetic simulation desired", "n/a", False]}
 
 
 class pke2region:
@@ -44,6 +95,10 @@ class pke2region:
         if self.inputs.typ != "pke2region":
             raise TypeError("incorrect inputs container given: {}"\
                             .format(self.inputs.typ))
+        _pkecheck(self.inputs)
+        _checkdict(PKE_2_REGION_DICT, self.inputs)
+        _inrange(self.inputs.fcr, "fcr", [0.0, 1.0])
+        _inrange(self.inputs.frc, "frc", [0.0, 1.0])
     
     
     def __solveinitialconditions(self):
@@ -154,6 +209,61 @@ class pke2region:
 # -----------------------------------------------------------------------------
 
 
+SRC_PKE_2_REGION_DICT = \
+    {"beta": [np.ndarray, float, "delayed neutron fraction", "unitless", True],
+     
+     "lamda": [np.ndarray, float, "delay neutron group decay constant",
+               "1/seconds", True],
+     
+     "promptLc": [float, None, "prompt neutron lifeime of the core region",
+                  "seconds", True],
+     
+     "promptLr": [float, None, "prompt neutron lifeime of the reflector region",
+                  "seconds", True],
+     
+     "frc": [float, None,
+             "fraction of neutrons the reflector that return to the core"
+             "region", "unitless", True],
+     
+     "fcr": [float, None, "fraction of neutrons born in the core that reach "
+             "the reflector", "unitless", True],
+     
+     "S0": [float, None, "initial source strength", "neutrons/second", True],
+     
+     "epsilon": [float, None, "neutron source efficiency",
+                 "fissions/neutron emitted", True],
+     
+     "rhoi": [float, None, "initial reactivity of the reactor", "dk/k", False],
+     
+     "volumec": [float, None, "total volume of reactor core",
+                 "meters^3", True],
+     
+     "volumer": [float, None, "total volume of reactor reflector",
+                 "meters^3", True],
+     
+     "nubar": [float, None, "average number of neutrons produced per fission",
+               "neutrons/fission", True],
+     
+     "Q": [float, None, "Average recoverable energy released per fission",
+           "MeV/fission", True],
+     
+     "vc": [float, None,
+           "effective one-group neutron velocity of the core region",
+           "meters/second", True],
+     
+     "vr": [float, None,
+           "effective one-group neutron velocity of the reflector region",
+           "meters/second", True],
+     
+     "timepoints": [np.ndarray, float, "time points to return solution",
+                    "seconds", False],
+     
+     "rhoext": [object, None, "external reactivity control class", "n/a",
+                False],
+     
+     "typ": [str, None, "type of kinetic simulation desired", "n/a", False]}
+
+
 class srcpke2region:
     
     
@@ -174,6 +284,10 @@ class srcpke2region:
         if self.inputs.typ != "srcpke2region":
             raise TypeError("incorrect inputs container given: {}"\
                             .format(self.inputs.typ))
+        _pkecheck(self.inputs)
+        _checkdict(SRC_PKE_2_REGION_DICT, self.inputs)
+        _inrange(self.inputs.fcr, "fcr", [0.0, 1.0])
+        _inrange(self.inputs.frc, "frc", [0.0, 1.0])
     
     
     def __findinitalpopulation(self, ni):

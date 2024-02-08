@@ -13,6 +13,8 @@ kinetics/data/__init__.py
 kinetics/debug/__init__.py
 kinetics/debug/debug_controlrules.py
 kinetics/debug/debug_input_container.py
+kinetics/debug/debug_interpolated_control_rule.py
+kinetics/debug/debug_multipoint_kinetics.py
 kinetics/debug/debug_point_kinetics.py
 kinetics/debug/debug_src_point_kinetics.py
 kinetics/debug/debug_src_two_point_kinetics.py
@@ -24,6 +26,7 @@ kinetics/examples/__init__.py
 kinetics/functions/__init__.py
 kinetics/functions/control.py
 kinetics/functions/depletion.py
+kinetics/functions/feedback.py
 kinetics/functions/plotters.py
 kinetics/functions/pointkinetics.py
 kinetics/functions/printoutput.py

@@ -11,16 +11,16 @@ function debugs point kinetics solver
 
 import numpy as np
 from kinetics.functions.tworegionkinetics import srcpke2region
-from kinetics.functions.control import generalControlRule
+from kinetics.functions.control import controlrule
 from kinetics.containers.inputs import pointkineticsInputsContainer
 from kinetics.containers.outputs import pointkineticsOutputsContainer
 from kinetics.functions.plotters import lineplot
 
 # define reactivity scenario
 timepoints = np.linspace(0.0, 100.0, 500)
-rhoext = generalControlRule(['linear', 'linear', 'linear'],
-                            [[0.0, 0.0], [0.0, 0.02], [0.0, 0.04]],
-                            [5.0, 50.0, 105.0])
+rhoext = controlrule(['linear', 'linear', 'linear'],
+                     [[0.0, 0.0], [0.0, 0.02], [0.0, 0.04]],
+                     [5.0, 50.0, 105.0])
 
 # define point kinetics parameters
 beta = 0.00689 * np.array([0.033, 0.219, 0.196, 0.395, 0.115, 0.042])
@@ -73,7 +73,7 @@ lineplot([pkesolver.inputs.timepoints]*6,
           pkesolver.outputs.dnt[4,:], pkesolver.outputs.dnt[5,:]],
          label=["Group 1", "Group 2", "Group 3",
                 "Group 4", "Group 5", "Group 6"],
-         markers=["None"]*6, loc="upper right",
+         markers=["None"]*6, loc="upper left",
          linestyles=["--"]*6, grid=True, xlabel="Time, seconds",
          ylabel="Delay neutron precusor conc., a.u.")
 

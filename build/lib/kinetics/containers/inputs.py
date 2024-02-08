@@ -11,10 +11,142 @@ into each of the solver classes.
 
 
 import numpy as np
-from kinetics.errors.checkerrors import _isbool, _ispositive, _inlist,\
-    _ispositiveArray, _isequallength, _iszeropositive, _isnumber, _isstr,\
-        _isnonNegativeArray
+from kinetics.errors.checkerrors import _inlist, _isstr, _innotlist, \
+    _isequallength
 from kinetics.errors.customerrors import _checkdict, _pkecheck
+
+
+class regionKineticsData:
+    
+    
+    KOBAYASHI_DICT = \
+        {"Id": [str, None, "region name", "n/a", False],
+         
+         "lj": [float, None, "region i's inverse neutron speed",
+                "seconds/meters", True],
+         
+         "kjk": [np.ndarray, None, "region prompt neutron coupling coefficients", "unitless", True],
+         
+         "kdjk": [np.ndarray, None, "region delayed neutron coupling coefficients", "unitless", True],
+         
+         "beta": [np.ndarray, float, "delayed neutron fraction", "unitless",
+                  True],
+         
+         "lamda": [np.ndarray, float, "delay neutron group decay constant",
+                   "1/seconds", True],
+         
+         "Q": [float, None, "average recoverable energy released per fission",
+               "MeV/fission", True],
+         
+         "volume": [float, None, "volume of the region", "meters^3", True],
+         
+         "v": [float, None, "one-group effective neutron velocity",
+               "meters/second", True]}
+    
+    
+    AVERY_DICT = \
+        {"Ljk": [np.ndarray, float, "region's inverse neutron speed to each region",
+                 "seconds/meter", True],
+         
+         "Kjk": [np.ndarray, float, "region's fission generation coupling coefficient",
+                 "unitless", True],
+         
+         
+         "Bjk": [np.ndarray, float, "fraction of delayed neutrons emitted in region j "
+                 "that produce fission in region k", "unitless",
+                 True],
+         
+         "Bki": [np.ndarray, float, "delayed neutron fraction for region", "unitless",
+                 True],
+         
+         "lamdaki": [np.ndarray, float, "delay neutron group decay constant",
+                     "1/seconds", True],
+         
+         "Q": [float, None, "average recoverable energy released per fission",
+               "MeV/fission", True],
+         
+         "volume": [float, None, "volume of the region", "meters^3", True],
+         
+         "v": [float, None, "one-group effective neutron velocity",
+               "meters/second", True],
+         
+         "Id": [str, None, "region name", "n/a", False],}
+    
+    
+    def __checkinputs(self):
+        """function runs basic error checking on region kinetics data"""
+        
+        if "typ" not in list(self.__dict__.keys()):
+            raise ValueError("typ keyword must be given for kinetics data container")
+            
+        _inlist(self.typ, "multi-point kinetic model solution", ["kobayashi", "avery"])
+        
+        _checkdict(self.__getdict(), self)
+
+    
+    def __init__(self, **kwargs):
+        """function initalizes instance of region kinetics data container"""
+        
+        self.__dict__.update(kwargs)
+        self.__checkinputs()
+        
+        
+    def __getdict(self):
+        """utility function returns input dict"""
+            
+        if self.typ == "kobayashi":
+            Dict = self.KOBAYASHI_DICT
+        elif self.typ == "avery":
+            Dict = self.AVERY_DICT
+            
+        return Dict
+
+
+class multiPointKineticsInputsContainer:
+    
+    
+    def __init__(self, typ):
+        """function initalizes multipoint kinetics input container"""
+        
+        _inlist(typ, "multipoint kinetics solution method", ["Kobayashi", "avery"])
+        self.typ = typ
+        self.validated = False
+        self.regions = []
+        self.Ids = []
+    
+    
+    def add(self, **kwargs):
+        """function adds a region's kinetic data to container"""
+        
+        region = regionKineticsData(**kwargs)
+        _innotlist(region.Id, "region Id", self.Ids)
+        self.Ids.append(region.Id)
+        self.regions.append(region)
+        
+    
+    def get(self, Id):
+        """function gets a specific region's kinetic data"""
+        
+        return self.regions[np.where(np.array(self.Ids) == Id)[0][0]]        
+    
+    
+    def validate(self):
+        """function ensures that each region can be coupled"""
+        
+        expL = len(self.Ids)
+        
+        if self.typ == "avery":
+            checkKeys = ["Ljk", "Kjk", "Bjk"]
+        else:
+            raise ValueError("Kobayashi has not been implemented yet")
+        
+        for Id in self.Ids:
+            region = self.get(Id)
+            for key in checkKeys:
+                _isequallength(getattr(region, key), expL,
+                               region.__getdict()[key][2])
+        
+        self.validated = True
 
 
 class pointkineticsInputsContainer:
@@ -181,7 +313,7 @@ class pointkineticsInputsContainer:
                     
          "timepoints": [np.ndarray, float, "time points for which results "
                         "are reported by solver", "seconds", False]}
-    
+        
     
     def __init__(self, **kwargs):
         """function initialize point kinetics inputs container"""

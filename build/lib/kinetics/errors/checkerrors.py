@@ -6,6 +6,8 @@ Set of muted functions to examine various errors.
 The error checking provides the ability to monitor whether variables
 are of a certain type, within a certain values range, or part of a list.
 
+@author: matt krecicki
+@email: matthewkrecicki@gmail.com
 
 """
 
@@ -243,7 +245,7 @@ def _inlist(var, description, keyslist):
         
 def _innotlist(var, description, keyslist):
     """checks if the variable is not in a certain list"""
-    if var not in keyslist:
+    if var in keyslist:
         raise KeyError("{}=<{}> exists!!! in the option list {}"
                        .format(description, var, keyslist))
 
