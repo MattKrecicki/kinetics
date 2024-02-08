@@ -1,2 +1,2 @@
-# ntp-system-package
-A modular system code for ntp analysis 
+# kinetics
+A python package for reduced order modeling of reactor kinetics
