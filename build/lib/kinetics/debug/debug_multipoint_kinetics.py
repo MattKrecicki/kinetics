@@ -6,7 +6,9 @@ Created on Fri Feb  2 17:17:59 2024
 """
 
 import numpy as np
-from kinetics.containers.inputs import multiPointKineticsInputsContainer as inputsContainer
+from kinetics.containers.inputs import multiPointKineticsInputsContainer as \
+    inputsContainer
+from kinetics.functions.multipointkinetics import avery
 
 # ----- input kinetic parameters from Valocchi et al., 2020
 
@@ -108,3 +110,9 @@ inputs.add(Id="4",
 inputs.validate()
 
 
+# ----- solve for initial conditions
+
+
+mpk = avery(kineticData=inputs, P0=100.0)
+
+mpk.solve(rtol=1e-10, k0=1.0, flux0=None, maxitr=500)

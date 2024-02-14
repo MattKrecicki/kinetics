@@ -81,7 +81,7 @@ class regionKineticsData:
             
         _inlist(self.typ, "multi-point kinetic model solution", ["kobayashi", "avery"])
         
-        _checkdict(self.__getdict(), self)
+        _checkdict(self._getdict(), self)
 
     
     def __init__(self, **kwargs):
@@ -91,7 +91,7 @@ class regionKineticsData:
         self.__checkinputs()
         
         
-    def __getdict(self):
+    def _getdict(self):
         """utility function returns input dict"""
             
         if self.typ == "kobayashi":
@@ -144,7 +144,7 @@ class multiPointKineticsInputsContainer:
             region = self.get(Id)
             for key in checkKeys:
                 _isequallength(getattr(region, key), expL,
-                               region.__getdict()[key][2])
+                               region._getdict()[key][2])
         
         self.validated = True
 
@@ -158,7 +158,7 @@ class pointkineticsInputsContainer:
     """
     
     # required keys for each point kinetics solver class
-    ALLOWED_TYPS = ["pke2region", "srcpke2region", "pke", "spke"]
+    ALLOWED_TYPS = ["pke2region", "srcpke2region", "pke", "spke", "invpke"]
     
     #dict containing inputs descriptions and error checking info
     #format is the following:
@@ -313,7 +313,34 @@ class pointkineticsInputsContainer:
                     
          "timepoints": [np.ndarray, float, "time points for which results "
                         "are reported by solver", "seconds", False]}
-        
+    
+    INV_PKE_DICT = \
+        {"beta": [np.ndarray, float, "delayed neutron fraction", "unitless", True],
+         
+         "lamda": [np.ndarray, float, "delay neutron group decay constant",
+                   "1/seconds", True],
+         
+         "promptL": [float, None, "prompt neutron lifeime", "seconds", True],
+              
+         "volume": [float, None, "total volume of reactor control volume",
+                    "meters^3", True],
+         
+         "nubar": [float, None, "average number of neutrons produced per fission",
+                   "neutrons/fission", True],
+         
+         "Q": [float, None, "Average recoverable energy released per fission",
+               "MeV/fission", True],
+         
+         "v": [float, None, "effective one-group neutron velocity", "meters/second",
+               True],
+         
+         "timepoints": [np.ndarray, float, "time points to return solution",
+                        "seconds", False],
+         
+         "power": [object, None, "reactor power control class", "n/a",
+                   False],
+         
+         "typ": [str, None, "type of kinetic simulation desired", "n/a", False]}
     
     def __init__(self, **kwargs):
         """function initialize point kinetics inputs container"""
@@ -333,6 +360,8 @@ class pointkineticsInputsContainer:
             Dict = self.DICT_PKE
         elif self.typ == "spke":
             Dict = self.DICT_SRC_PKE
+        elif self.typ == "invpke":
+            Dict = self.INV_PKE_DICT
         
         return Dict
     

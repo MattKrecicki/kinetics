@@ -14,6 +14,7 @@ kinetics/debug/__init__.py
 kinetics/debug/debug_controlrules.py
 kinetics/debug/debug_input_container.py
 kinetics/debug/debug_interpolated_control_rule.py
+kinetics/debug/debug_inverse_point_kinetics.py
 kinetics/debug/debug_multipoint_kinetics.py
 kinetics/debug/debug_point_kinetics.py
 kinetics/debug/debug_src_point_kinetics.py
@@ -27,11 +28,14 @@ kinetics/functions/__init__.py
 kinetics/functions/control.py
 kinetics/functions/depletion.py
 kinetics/functions/feedback.py
+kinetics/functions/inversepointkinetics.py
+kinetics/functions/multipointkinetics.py
 kinetics/functions/plotters.py
 kinetics/functions/pointkinetics.py
 kinetics/functions/printoutput.py
 kinetics/functions/transientsolver.py
 kinetics/functions/tworegionkinetics.py
+kinetics/functions/utilities.py
 kinetics/simplepke/__init__.py
 kinetics/simplepke/energycondensation.py
 kinetics/simplepke/exe_multipoint_kinetics.py

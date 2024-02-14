@@ -11,5 +11,5 @@ Requires-Python: >=3.6
 Description-Content-Type: text/markdown
 License-File: LICENSE
 
-# ntp-system-package
-A modular system code for ntp analysis 
+# kinetics
+A python package for reduced order modeling of reactor kinetics
