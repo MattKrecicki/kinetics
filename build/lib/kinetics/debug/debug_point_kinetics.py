@@ -18,11 +18,16 @@ from kinetics.functions.plotters import lineplot
 
 
 # define reactivity scenario
-timepoints = np.linspace(0.0, 100.0, 1000)
+timepoints = np.linspace(0.0, 100.0, 50)
 
 rhoext = controlrule(['linear', 'linear'],
                      [[0.0, 0.0], [0.0, 0.003445]],
                      [0.5, 10.0])
+
+
+rhoext = controlrule(['linear'],
+                     [[0.0, 0.0]],
+                     [0.5])
 
 # define point kinetics parameters
 beta = 0.00689 * np.array([0.033, 0.219, 0.196, 0.395, 0.115, 0.042])

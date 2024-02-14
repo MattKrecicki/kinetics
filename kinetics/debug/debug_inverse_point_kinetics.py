@@ -23,7 +23,7 @@ res.recover("pke.h5")
 
 #generate power function
 powerfunc = interp1d(res.timepoints, res.power)
-timepoints = np.linspace(0.0, 100.0, 50)
+timepoints = np.linspace(0.0, 100.0, 300)
 
 #kinetic parameters
 beta = 0.00689 * np.array([0.033, 0.219, 0.196, 0.395, 0.115, 0.042])
@@ -55,7 +55,7 @@ lineplot([res.timepoints, invpke.outputs.timepoints],
          [res.rho, invpke.outputs.rho],
          xlabel="time, seconds", ylabel="reactivity, dk/k",
          label=["ref.", "computed"], colors=["black", "red"],
-         linestyles=["-", "None"], markers=["None", "s"], grid=True, ylim=[-0.001, 0.001])
+         linestyles=["-", "None"], markers=["None", "s"], grid=True)
 
 lineplot([res.timepoints],
          [invpke.outputs.rho - res.rho],

@@ -21,11 +21,11 @@ from kinetics.functions.plotters import lineplot
 res = pointkineticsOutputsContainer()
 res.recover("pke.h5")
 
-
+#generate power function
 powerfunc = interp1d(res.timepoints, res.power)
-timepoints = np.linspace(0.0, 100.0, 1000)
+timepoints = np.linspace(0.0, 100.0, 50)
 
-
+#kinetic parameters
 beta = 0.00689 * np.array([0.033, 0.219, 0.196, 0.395, 0.115, 0.042])
 lamda = np.array([0.0124, 0.0305, 0.1110, 0.3011, 1.1400, 3.0100])
 promptL = 6E-05 
@@ -50,5 +50,15 @@ invpke = inversepke(inputs)
 invpke.solve()
 
 
+#plot computed excess reactivity to actual excess reactivity
+lineplot([res.timepoints, invpke.outputs.timepoints],
+         [res.rho, invpke.outputs.rho],
+         xlabel="time, seconds", ylabel="reactivity, dk/k",
+         label=["ref.", "computed"], colors=["black", "red"],
+         linestyles=["-", "None"], markers=["None", "s"], grid=True, ylim=[-0.001, 0.001])
 
-
+lineplot([res.timepoints],
+         [invpke.outputs.rho - res.rho],
+         xlabel="time, seconds", ylabel="reactivity error, dk/k",
+         label=["error"], colors=["blue"],
+         linestyles=["None"], markers=["s"], grid=True)

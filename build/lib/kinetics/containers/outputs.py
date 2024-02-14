@@ -23,6 +23,8 @@ class pointkineticsOutputsContainer:
     
     PKE_OUTPUTS = ["nt", "power", "dnt", "timepoints", "rho", "flux"]
     
+    INV_PKE_OUTPUTS = ["nt", "power", "timepoints", "rho", "flux"]
+    
     SRC_PKE_OUTPUTS = ["nt", "power", "dnt", "timepoints", "rho", "flux"]
     
     TWO_PKE_OUTPUTS = ["ntc", "ntr", "power", "dnt", "timepoints", "rho",
@@ -47,6 +49,8 @@ class pointkineticsOutputsContainer:
         #determine which set of values need to be exported
         if self.typ == "pke":
             keys = self.PKE_OUTPUTS
+        elif self.typ == "invpke":
+            keys = self.INV_PKE_OUTPUTS
         elif self.typ == "spke":
             keys = self.SRC_PKE_OUTPUTS
         elif self.typ == "pke2region":
