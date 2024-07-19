@@ -11,7 +11,7 @@ function debugs point kinetics solver
 
 import numpy as np
 from scipy.interpolate import interp1d
-from kinetics.functions.inversepointkinetics import inversepke
+from kinetics.functions.inversepointkinetics import inversepke, inversepke_old
 from kinetics.containers.inputs import pointkineticsInputsContainer
 from kinetics.containers.outputs import pointkineticsOutputsContainer
 from kinetics.functions.plotters import lineplot
@@ -22,8 +22,8 @@ res = pointkineticsOutputsContainer()
 res.recover("pke.h5")
 
 #generate power function
-powerfunc = interp1d(res.timepoints, res.power)
-timepoints = np.linspace(0.0, 100.0, 500)
+powerfunc = interp1d(res.timepoints, res.power, fill_value="extrapolate")
+timepoints = np.linspace(0.0, 100.0, 200)
 
 #kinetic parameters
 beta = 0.00689 * np.array([0.033, 0.219, 0.196, 0.395, 0.115, 0.042])
@@ -40,29 +40,62 @@ v = 1.86E+04 #m/s
 inputs = \
     pointkineticsInputsContainer(beta=beta, lamda=lamda, promptL=promptL,\
         volume=volume, nubar=nubar, Q=Q, v=v, power=powerfunc,
-        timepoints=timepoints, typ="invpke", )
-        
+        timepoints=timepoints, typ="invpke")
+
 
 #initialize inverse point kinetics solver
-invpke = inversepke(inputs)
-
+invpke = inversepke(inputs, noSamples=200)
+#invpke = inversepke_old(inputs)
 
 #solver inverse kinetics problem
 invpke.solve()
 
+#error = -0.0035
+# with dCdt = 0.0, -0.00014
+# with dNdt = 0.0, -0.00300
+# with both = 0.0, 0.0
 
 #plot computed excess reactivity to actual excess reactivity
 lineplot([res.timepoints, invpke.outputs.timepoints],
-         [res.rho, invpke.outputs.rhototal],
+         [res.rho, invpke.outputs.rho],
          xlabel="time, seconds", ylabel="reactivity, dk/k",
          label=["ref.", "computed"], colors=["black", "red"],
-         linestyles=["-", "None"], markers=["None", "s"], grid=True)
+         linestyles=["-", "--"], markers=["None", "None"], grid=True)
 
 lineplot([res.timepoints],
-         [invpke.outputs.rhototal - res.rho],
+         [invpke.outputs.rho - res.rho],
          xlabel="time, seconds", ylabel="reactivity error, dk/k",
          label=["error"], colors=["blue"],
-         linestyles=["None"], markers=["s"], grid=True)
+         linestyles=["--"], markers=["None"], grid=True)
 
 
 
+Cpke = res.dnt
+Cinv = invpke.outputs.dnt
+
+Cdiff = 100*(Cpke - Cinv)/Cpke
+
+
+
+lineplot([res.timepoints]*6,
+         [Cpke[0,:], Cpke[1,:], Cpke[2,:], Cpke[3,:],
+          Cpke[4,:], Cpke[5,:]],
+         xlabel="time, seconds", ylabel="Rrecusor conc, a.u.",
+         label=["Grp-1", "Grp-2", "Grp-3", "Grp-4", "Grp-5", "Grp-6"],
+         linestyles=["--"]*6, markers=["None"]*6, grid=True)
+
+lineplot([res.timepoints]*6,
+         [Cinv[0,:], Cinv[1,:], Cinv[2,:], Cinv[3,:],
+          Cinv[4,:], Cinv[5,:]],
+         xlabel="time, seconds", ylabel="Rrecusor conc, a.u.",
+         label=["Grp-1", "Grp-2", "Grp-3", "Grp-4", "Grp-5", "Grp-6"],
+         linestyles=["--"]*6, markers=["None"]*6, grid=True)
+
+
+
+lineplot([res.timepoints]*6,
+         [Cdiff[0,:], Cdiff[1,:], Cdiff[2,:], Cdiff[3,:],
+          Cdiff[4,:], Cdiff[5,:]],
+         xlabel="time, seconds", ylabel="Rrecusor conc. rel. difference, %",
+         label=["Grp-1", "Grp-2", "Grp-3", "Grp-4", "Grp-5", "Grp-6"],
+         linestyles=["--"]*6, markers=["None"]*6, grid=True)

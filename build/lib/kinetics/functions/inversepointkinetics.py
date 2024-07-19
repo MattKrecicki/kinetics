@@ -70,7 +70,7 @@ class inversepke:
         _checkdict(INV_PKE_DICT, self.inputs)
     
     
-    def __init__(self, inputs, noSamples=10000):
+    def __init__(self, inputs, noSamples=1000):
         """function initalizes inverse point kinetics solver"""
         
         self.inputs = inputs
@@ -79,69 +79,95 @@ class inversepke:
         setattr(self.inputs, "betaTot", self.inputs.beta.sum())
         
         #evaluate 1st and 2nd derivatives
+        ti = np.linspace(self.inputs.timepoints[0], self.inputs.timepoints[-1],
+                         noSamples)
         
-        ti = np.linspace(self.inputs.timepoints[0], self.inputs.timepoints[-1], noSamples)
-        Pi = self.inputs.power(ti)
+        ni = \
+            (self.inputs.power(ti)*self.inputs.nubar*self.inputs.promptL)/ \
+                (self.inputs.Q * MEV_2_J)
         
-        self.inputs.deriv1 = UnivariateSpline(ti, Pi, k=1).derivative(n=1)
-        self.inputs.deriv2 = UnivariateSpline(ti, Pi, k=2).derivative(n=2)
+        self.inputs.deriv1 = \
+            UnivariateSpline(ti, ni, k=1).derivative(n=1)
+        self.inputs.deriv2 = \
+            UnivariateSpline(ti, ni, k=2).derivative(n=2)
         
-        self.__checkinputs()
-        
+        test1 = self.inputs.deriv1(self.inputs.timepoints)
+                
     
     def __solveinitialconditions(self):
         """function solves initial conditions"""
 
         #convert power to total neutron population
-        self.inputs.n0 = \
-            (float(self.inputs.power(0.0)) * self.inputs.nubar * self.inputs.promptL) / \
-            (self.inputs.Q * MEV_2_J)
+        P0 = float(self.inputs.power(self.inputs.timepoints[0]))
+        
+        n0 = \
+            (P0*self.inputs.nubar*self.inputs.promptL)/(self.inputs.Q * MEV_2_J)
+        
+        self.inputs.n0 = n0
         
         #detemerine inital reactivity and precusor concentrations
         x0 = \
-            self.inputs.n0*np.append(0.0, self.inputs.beta/self.inputs.lamda/\
+            n0*np.append(0.0, self.inputs.beta/self.inputs.lamda/\
                                      self.inputs.promptL)
         
         return x0
     
     
-    def __constructmatrix(self, t, factor=1e-3):
+    def __delayedderivative(self, Ci, Ni):
+        """function computs the neutron precusor time derivative"""
+        
+        dCdt = \
+            (self.inputs.beta/self.inputs.promptL)*Ni - (Ci*self.inputs.lamda)
+        
+        return dCdt
+    
+    
+    def __constructmatrix(self, t, state_history):
         """function constructs matrix for estimation of time derv."""
         
-        #construct matrix
-        mtxA = np.zeros((self.inputs.groupsDN+1, self.inputs.groupsDN+1))
+        Ni = \
+            (float(self.inputs.power(t))*self.inputs.nubar*self.inputs.promptL)/ \
+                (self.inputs.Q * MEV_2_J)
         
-        #fill diagonal with decay constants
-        np.fill_diagonal(mtxA, np.append(0, -self.inputs.lamda))
-        
-        #fill top row of matrix with decay constants
-        mtxA[1,:] = self.inputs.lamda
-        
-        # build the first column
-        mtxA[1:self.inputs.groupsDN+1, 0] = self.inputs.beta/self.inputs.promptL
+        #get neutron precusor density
+        Ci = state_history["prev"][1:]
         
         #compute the reactivity time derivative
-        dPdt = self.__evaluatederivative(t, factor=factor)
-        dP2dt2 = self.__evaluatesecondderivative(t, factor=factor)
+        dNdt = float(self.inputs.deriv1(t))
+        dN2dt2 = float(self.inputs.deriv2(t)) 
         
-        A = self.inputs.promptL / float(self.inputs.power(t))**2
-        B = -dPdt**2
-        C = 
-        D = 0.0
-        E = 0.0
+        #compute delayed neutron precusor time derivative
+        dCdt = self.__delayedderivative(Ci, Ni)
         
-        drhodt = A * (B + C + D - E)
+        ratiotest = self.inputs.x0[1:]/Ci
         
-        return mtxA
+        #evaluate coefficients for reactivity time derivative
+        a = self.inputs.promptL / float(self.inputs.power(t))**2
+        b = -dNdt**2
+        c = np.sum(self.inputs.lamda*Ci*dNdt)
+        d = dNdt * dN2dt2
+        e = np.sum(Ni * dCdt * self.inputs.lamda)
+        
+        drhodt = a * (b + c + d - e)
+        
+        return drhodt, dCdt
     
     
-    def __dxdt(self, x0, t):
+    def __dxdt(self, x0, t, state_history):
         """function evaluates the time derv. of the system"""
         
-        return np.dot(self.__constructmatrix(t), x0)
+        state_history["prev"] = x0
+        
+        drhodt, dCdt = self.__constructmatrix(t, state_history)        
+        
+        dxdt = np.zeros(self.inputs.groupsDN+1)
+        dxdt[0] = drhodt
+        dxdt[1:] = dCdt
+                
+        return dxdt
         
     
-    def solve(self, rtol=1e-10, intabstol=1.49e-08, factor=1e-3):
+    def solve(self, rtol=1e-10):
         """function solves inverse kinetics problem to obtain total reactivity
         as a function of time based on a given power trace
         
@@ -168,17 +194,26 @@ class inversepke:
         
         # obtain initial conditions
         x0 = self.__solveinitialconditions()
+        self.inputs.x0 = x0
         
         # obtain solution over defined power trace
-        self.solution = odeint(self.__dxdt, x0, self.inputs.timepoints, rtol=rtol)
-                
+        dxdt = functools.partial(self.__dxdt, state_history={})
+        
+        solution = odeint(dxdt, x0, self.inputs.timepoints, rtol=rtol)
+        
         #generate output object
-        #self.__postprocess()
+        self.__postprocess(solution)
     
     
-    def __postprocess(self, rhot, rhop, rhod):
+    def __postprocess(self, solution):
         """function performs post processing routines"""
-                        
+        
+        #seperate out delayed neutron precusors
+        dnt = solution[:,1:].T
+        
+        #seperate out total neutron population
+        rho = solution[:,0]
+        
         #compute power
         power = self.inputs.power(self.inputs.timepoints)
         
@@ -193,8 +228,8 @@ class inversepke:
         #initalize solution container
         self.outputs = \
             pointkineticsOutputsContainer(timepoints=self.inputs.timepoints,\
-                nt=nt, power=power, rhototal=rhot, rhodelayed=rhod, 
-                rhoprompt=rhop, flux=flux, typ="invpke")
+                nt=nt, dnt=dnt, power=power, flux=flux, rho=rho,
+                typ="invpke")
 
 
 class inversepke_old:
@@ -389,9 +424,8 @@ class inversepke_old:
         #initalize solution container
         self.outputs = \
             pointkineticsOutputsContainer(timepoints=self.inputs.timepoints,\
-                nt=nt, power=power, rhototal=rhot, rhodelayed=rhod, 
-                rhoprompt=rhop, flux=flux, typ="invpke")
-    
+                nt=nt, power=power, rho=rhot,
+                 flux=flux, typ="invpke")
         
 
 SRC_INV_PKE_DICT = \

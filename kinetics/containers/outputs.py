@@ -23,8 +23,7 @@ class pointkineticsOutputsContainer:
     
     PKE_OUTPUTS = ["nt", "power", "dnt", "timepoints", "rho", "flux"]
     
-    INV_PKE_OUTPUTS = ["nt", "power", "timepoints", "rhototal", "rhodelayed",
-                       "rhoprompt" "flux"]
+    INV_PKE_OUTPUTS = ["nt", "power", "dnt", "timepoints", "flux", "rho"]
     
     SRC_PKE_OUTPUTS = ["nt", "power", "dnt", "timepoints", "rho", "flux"]
     
