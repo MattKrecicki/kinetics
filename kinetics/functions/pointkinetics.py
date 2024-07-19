@@ -13,6 +13,7 @@ function contains point kinetics and source driven point kinetics solver
 MEV_2_J = 1.60218e-13
 
 import numpy as np
+import h5py
 from scipy.integrate import odeint
 from scipy.optimize import root
 from kinetics.errors.checkerrors import _isnegative, _inrange, _ispositive

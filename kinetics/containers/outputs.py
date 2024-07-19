@@ -23,9 +23,12 @@ class pointkineticsOutputsContainer:
     
     PKE_OUTPUTS = ["nt", "power", "dnt", "timepoints", "rho", "flux"]
     
-    INV_PKE_OUTPUTS = ["nt", "power", "timepoints", "rho", "flux"]
+    INV_PKE_OUTPUTS = ["nt", "power", "timepoints", "rhototal", "rhodelayed",
+                       "rhoprompt" "flux"]
     
     SRC_PKE_OUTPUTS = ["nt", "power", "dnt", "timepoints", "rho", "flux"]
+    
+    SRC_INV_PKE_OUTPUTS = ["nt", "power", "timepoints", "rhototal", "flux"]
     
     TWO_PKE_OUTPUTS = ["ntc", "ntr", "power", "dnt", "timepoints", "rho",
                        "fluxc", "fluxr"]
@@ -51,6 +54,8 @@ class pointkineticsOutputsContainer:
             keys = self.PKE_OUTPUTS
         elif self.typ == "invpke":
             keys = self.INV_PKE_OUTPUTS
+        elif self.typ == "srcinvpke":
+            keys = self.SRC_INV_PKE_OUTPUTS
         elif self.typ == "spke":
             keys = self.SRC_PKE_OUTPUTS
         elif self.typ == "pke2region":

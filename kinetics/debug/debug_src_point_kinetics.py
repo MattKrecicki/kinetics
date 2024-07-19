@@ -18,10 +18,13 @@ from kinetics.functions.plotters import lineplot
 
 
 # define reactivity scenario
-timepoints = np.linspace(0.0, 150.0, 500)
+timepoints = np.linspace(0.0, 100.0, 200)
 rhoext = controlrule(['linear', 'linear', 'linear'],
                             [[0.0, 0.0], [0.001, 0.001], [0.0, 0.02083968]],
                             [0.5, 20.0, 150.0])
+
+#rhoext = controlrule(['linear'],  [[0.0, 0.0]], [0.5])
+
 
 # define point kinetics parameters
 beta = 0.00689 * np.array([0.033, 0.219, 0.196, 0.395, 0.115, 0.042])
@@ -42,22 +45,27 @@ inputs = \
         S0=S0, rhoi=rhoi, epsilon=epsilon, volume=volume, nubar=nubar, Q=Q, v=v,
         rhoext=rhoext, timepoints=timepoints, typ="spke")
 
+
 # initalize point kinetics solver
 pkesolver = srcpke(inputs)
 
+
 # execute solver
 pkesolver.solve(rtol=1e-10)
+
 
 # plot change in reactor power
 lineplot([pkesolver.inputs.timepoints], [pkesolver.outputs.power], markers=["None"],
          linestyles=["--"], grid=True, xlabel="Time, seconds",
          ylabel="Power, Watts")
 
+
 # plot change in neutron populations
 lineplot([pkesolver.inputs.timepoints],
          [pkesolver.outputs.nt],
          markers=["None"], linestyles=["--"], grid=True,
          xlabel="Time, seconds", ylabel="Neutron population, a.u.")
+
 
 # plot change in delayed neutron prescusors
 lineplot([pkesolver.inputs.timepoints]*6,
@@ -70,14 +78,17 @@ lineplot([pkesolver.inputs.timepoints]*6,
          linestyles=["--"]*6, grid=True, xlabel="Time, seconds",
          ylabel="Delay neutron precusor conc., a.u.")
 
+
 # plot total excess reactivity as a function of time
 lineplot([pkesolver.inputs.timepoints], [pkesolver.outputs.rho], markers=["None"],
          linestyles=["--"], grid=True, xlabel="Time, seconds",
          ylabel="Excess reactivity, dk/k")
 
+
 # export results to hdf5 file
 pkesolver.outputs.export("srcpke.h5")
 
+
 # test recovery of results
-res = pointkineticsOutputsContainer()
-res.recover("srcpke.h5")
+#res = pointkineticsOutputsContainer()
+#res.recover("srcpke.h5")

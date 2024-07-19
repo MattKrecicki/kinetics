@@ -3,6 +3,8 @@
 Created on Fri Feb  2 17:17:59 2024
 
 @author: matt krecicki
+@email: matthewkrecicki@gmail.com
+
 """
 
 import numpy as np
@@ -10,25 +12,21 @@ from kinetics.containers.inputs import multiPointKineticsInputsContainer as \
     inputsContainer
 from kinetics.functions.multipointkinetics import avery
 
-# ----- input kinetic parameters from Valocchi et al., 2020
+
+# ----- input kinetic parameters from Valocchi et al., 2020 "Reduced order
+# models in reactor kinetics: A comparison between point kinetics and
+# multipoint kinetics
 
 inputs = inputsContainer(typ="avery")
 
 #add region 1
 inputs.add(Id="1",
-           
            typ="avery",
-           
            Q=200.0,
-           
            v=1.86E+04, #placeholder 
-           
            volume=1.0, #placeholder
-           
            lamdaki = np.array([0.40529]),
-           
            Bki = np.array([0.003327]),
-           
            # coupling to:  1      2       3      4
            Bjk = np.array([332.7, 1097.1, 496.7, 298.4])*1e-5,
            # coupling to:  1      2       3      4
@@ -39,19 +37,12 @@ inputs.add(Id="1",
 
 #add region 2
 inputs.add(Id="2",
-           
            typ="avery",
-           
            Q=200.0,
-           
            v=1.86E+04, #placeholder
-           
            volume=1.0, #placeholder
-           
            lamdaki = np.array([0.40529]),
-           
            Bki = np.array([0.002899]),
-           
            # coupling to:  1      2      3      4
            Bjk = np.array([119.3, 289.9, 170.0, 194.4])*1e-5,
            # coupling to:  1        2        3        4
@@ -62,19 +53,12 @@ inputs.add(Id="2",
 
 #add region 3
 inputs.add(Id="3",
-           
            typ="avery",
-           
            Q=200.0,
-           
            v=1.86E+04, #placeholder
-           
            volume=1.0, #placeholder
-           
            lamdaki = np.array([0.40529]),
-           
            Bki = np.array([0.002899]),
-           
            # coupling to:  1      2       3      4
            Bjk = np.array([339.8, 1486.1, 776.2, 714.7])*1e-5,
            # coupling to:  1        2        3        4
@@ -85,19 +69,12 @@ inputs.add(Id="3",
 
 #add region 4
 inputs.add(Id="4",
-           
            typ="avery",
-           
            Q=200.0,
-           
            v=1.86E+04, #placeholder
-           
            volume=1.0, #placeholder
-           
            lamdaki = np.array([0.40529]),
-           
            Bki = np.array([0.002899]),
-           
            # coupling to:  1      2       3      4
            Bjk = np.array([307.7, 1390.7, 738.7, 809.4])*1e-5,
            # coupling to:  1        2        3        4
@@ -112,7 +89,8 @@ inputs.validate()
 
 # ----- solve for initial conditions
 
-
 mpk = avery(kineticData=inputs, P0=100.0)
 
-mpk.solve(rtol=1e-10, k0=1.0, flux0=None, maxitr=500)
+
+
+#mpk.solve(rtol=1e-10, k0=1.0, flux0=None, maxitr=500)

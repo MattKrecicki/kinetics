@@ -59,7 +59,7 @@ class interpolatedcontrolrule:
         _inlist(self.kind, "interpolate technique used", allowedTyps)
         
     
-    def __init__(self, timepoints, reactivity, kind="linear"):
+    def __init__(self, timepoints, reactivity, kind="linear", fill=0.0):
         """function initializes point based reactivity control rule
         
 
@@ -71,7 +71,7 @@ class interpolatedcontrolrule:
             reactivity as a function of time, in units of dk/k.
         kind : str
             interpolation type used, the default is linear.
-
+        
         Returns
         -------
         None.
@@ -87,12 +87,13 @@ class interpolatedcontrolrule:
         self.timepoints = timepoints
         self.reactivity = reactivity
         self.kind = kind
+        self.fill = fill
         self.__checkinputs()
         
         #generate interpolation function for transient analysis
         self.__func = \
             interp1d(self.timepoints, self.reactivity, kind=self.kind,
-                     bounds_error=False, fill_value=0.0) 
+                     bounds_error=False, fill_value=self.fill) 
 
     
     def evaluate(self, t):

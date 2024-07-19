@@ -8,12 +8,9 @@ function for plotting
 """
 
 import numpy as np
-import pandas as pa
 import matplotlib.pyplot as plt
-from matplotlib.patches import RegularPolygon, Circle
-from basilisk.functions.checkerrors import _isstr, _isarray, _isbool,\
-    _inlist, _isint, _isndarray, _isfloat, _ispositive, _isequallength,\
-        _isarray, _islist
+from kinetics.errors.checkerrors import _isstr, _isbool, _inlist, _isint, \
+    _isequallength, _isarray, _islist
 
 
 def make_patch_spines_invisible(ax):

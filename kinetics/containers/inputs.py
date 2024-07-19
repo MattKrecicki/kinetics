@@ -158,7 +158,8 @@ class pointkineticsInputsContainer:
     """
     
     # required keys for each point kinetics solver class
-    ALLOWED_TYPS = ["pke2region", "srcpke2region", "pke", "spke", "invpke"]
+    ALLOWED_TYPS = ["pke2region", "srcpke2region", "pke", "spke", "invpke",
+                    "srcinvpke"]
     
     #dict containing inputs descriptions and error checking info
     #format is the following:
@@ -341,6 +342,44 @@ class pointkineticsInputsContainer:
                    False],
          
          "typ": [str, None, "type of kinetic simulation desired", "n/a", False]}
+        
+        
+    SRC_INV_PKE_DICT = \
+        {"beta": [np.ndarray, float, "delayed neutron fraction", "unitless", True],
+         
+         "lamda": [np.ndarray, float, "delay neutron group decay constant",
+                   "1/seconds", True],
+         
+         "promptL": [float, None, "prompt neutron lifeime", "seconds", True],
+              
+         "volume": [float, None, "total volume of reactor control volume",
+                    "meters^3", True],
+         
+         "nubar": [float, None, "average number of neutrons produced per fission",
+                   "neutrons/fission", True],
+         
+         "Q": [float, None, "Average recoverable energy released per fission",
+               "MeV/fission", True],
+         
+         "v": [float, None, "effective one-group neutron velocity", "meters/second",
+               True],
+         
+         "timepoints": [np.ndarray, float, "time points to return solution",
+                        "seconds", False],
+         
+         "power": [object, None, "reactor power control class", "n/a",
+                   False],
+         
+         "S0": [float, None, "initial neutron source strength", "neutrons/second",
+                True],
+         
+         "rho0": [float, None, "initial reactivity", "dk/k", False],
+         
+         "epsilon": [float, None, "neutron source efficiency",
+                     "fissions/neutron emitted", True],
+         
+         "typ": [str, None, "type of kinetic simulation desired", "n/a", False]}
+
     
     def __init__(self, **kwargs):
         """function initialize point kinetics inputs container"""
@@ -362,6 +401,8 @@ class pointkineticsInputsContainer:
             Dict = self.DICT_SRC_PKE
         elif self.typ == "invpke":
             Dict = self.INV_PKE_DICT
+        elif self.typ == "srcinvpke":
+            Dict = self.SRC_INV_PKE_DICT
         
         return Dict
     
