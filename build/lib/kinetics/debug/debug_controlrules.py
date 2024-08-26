@@ -9,7 +9,7 @@ pressure and temperature.
 """
 
 import numpy as np
-from ntpSystem.functions.control import generalControlRule
+from kinetics.functions.control import generalControlRule
 
 # Test two arbitrary ramp intervals
 # -----------------------------------------------------------------------------

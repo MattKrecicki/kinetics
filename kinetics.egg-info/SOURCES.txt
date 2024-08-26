@@ -16,7 +16,7 @@ kinetics/debug/debug_input_container.py
 kinetics/debug/debug_interpolated_control_rule.py
 kinetics/debug/debug_inverse_point_kinetics.py
 kinetics/debug/debug_multipoint_keff_matrix.py
-kinetics/debug/debug_multipoint_kinetics.py
+kinetics/debug/debug_multipoint_kinetics_inputs.py
 kinetics/debug/debug_point_kinetics.py
 kinetics/debug/debug_point_kinetics_wphotoneutrons.py
 kinetics/debug/debug_src_inverse_point_kinetics.py
@@ -31,6 +31,7 @@ kinetics/functions/__init__.py
 kinetics/functions/control.py
 kinetics/functions/depletion.py
 kinetics/functions/feedback.py
+kinetics/functions/interpolation.py
 kinetics/functions/inversepointkinetics.py
 kinetics/functions/multipointkinetics.py
 kinetics/functions/plotters.py
@@ -56,8 +57,3 @@ kinetics/simplepke/solvepke.py
 kinetics/simplepke/two_region_pke.py
 kinetics/simplepke/two_region_pke_w_source.py
 kinetics/tests/__init__.py
-kinetics/tests/test_controlrules.py
-kinetics/tests/test_depletion.py
-kinetics/tests/test_dynamics.py
-kinetics/tests/test_inputscontainer.py
-kinetics/tests/test_point_kinetics.py

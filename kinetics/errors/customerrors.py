@@ -6,7 +6,8 @@ A set of custom error raises to identify when the error occurs.
 """
 
 import numpy as np
-from kinetics.errors.checkerrors import _ispositive, _isobject, _isequallength
+from kinetics.errors.checkerrors import _ispositive, _isobject, _isequallength,\
+    _isfloat, _isstr
 
 # -----------------------------------------------------------------------------
 # Run error checking for inputs container
@@ -33,7 +34,10 @@ def _checkdict(Dict, inputObj):
             for val in var:
                 _isobject(val, Dict[key][1], Dict[key][2])
                 if Dict[key][4]:
-                    _ispositive(val, Dict[key][2])
+                    if Dict[key][1] in [float]:
+                        _isfloat(val, Dict[key][2])
+                    elif Dict[key][1] in [str]:
+                        _isstr(val, Dict[key][2])
                     
         elif Dict[key][0] is not object:
             if Dict[key][4]:

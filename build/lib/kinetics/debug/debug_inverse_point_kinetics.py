@@ -21,9 +21,10 @@ from kinetics.functions.plotters import lineplot
 res = pointkineticsOutputsContainer()
 res.recover("pke.h5")
 
+
 #generate power function
 powerfunc = interp1d(res.timepoints, res.power, fill_value="extrapolate")
-timepoints = np.linspace(0.0, 100.0, 200)
+timepoints = np.linspace(0.0, 40.0, 1000000)
 
 #kinetic parameters
 beta = 0.00689 * np.array([0.033, 0.219, 0.196, 0.395, 0.115, 0.042])
@@ -44,27 +45,25 @@ inputs = \
 
 
 #initialize inverse point kinetics solver
-invpke = inversepke(inputs, noSamples=200)
-#invpke = inversepke_old(inputs)
+invpke = inversepke(inputs)
 
+print("solving")
 #solver inverse kinetics problem
-invpke.solve()
+invpke.solve(rtol=1e-3, factor=1e-2)
+print("solved")
 
-#error = -0.0035
-# with dCdt = 0.0, -0.00014
-# with dNdt = 0.0, -0.00300
-# with both = 0.0, 0.0
+intv = 100
 
 #plot computed excess reactivity to actual excess reactivity
-lineplot([res.timepoints, invpke.outputs.timepoints],
-         [res.rho, invpke.outputs.rho],
+lineplot([res.timepoints[::intv], invpke.outputs.timepoints[::intv]],
+         [res.rho[::intv], invpke.outputs.rho[::intv]],
          xlabel="time, seconds", ylabel="reactivity, dk/k",
          label=["ref.", "computed"], colors=["black", "red"],
          linestyles=["-", "--"], markers=["None", "None"], grid=True)
 
-lineplot([res.timepoints],
-         [invpke.outputs.rho - res.rho],
-         xlabel="time, seconds", ylabel="reactivity error, dk/k",
+lineplot([res.timepoints[::intv]],
+         [(invpke.outputs.rho[::intv] - res.rho[::intv])*1e+5],
+         xlabel="time, seconds", ylabel="reactivity error, pcm",
          label=["error"], colors=["blue"],
          linestyles=["--"], markers=["None"], grid=True)
 
@@ -75,27 +74,17 @@ Cinv = invpke.outputs.dnt
 
 Cdiff = 100*(Cpke - Cinv)/Cpke
 
-
-
-lineplot([res.timepoints]*6,
-         [Cpke[0,:], Cpke[1,:], Cpke[2,:], Cpke[3,:],
-          Cpke[4,:], Cpke[5,:]],
+lineplot([res.timepoints[::intv]]*6,
+         [Cinv[0,::intv], Cinv[1,::intv], Cinv[2,::intv], Cinv[3,::intv],
+          Cinv[4,::intv], Cinv[5,::intv]],
          xlabel="time, seconds", ylabel="Rrecusor conc, a.u.",
          label=["Grp-1", "Grp-2", "Grp-3", "Grp-4", "Grp-5", "Grp-6"],
          linestyles=["--"]*6, markers=["None"]*6, grid=True)
 
-lineplot([res.timepoints]*6,
-         [Cinv[0,:], Cinv[1,:], Cinv[2,:], Cinv[3,:],
-          Cinv[4,:], Cinv[5,:]],
-         xlabel="time, seconds", ylabel="Rrecusor conc, a.u.",
-         label=["Grp-1", "Grp-2", "Grp-3", "Grp-4", "Grp-5", "Grp-6"],
-         linestyles=["--"]*6, markers=["None"]*6, grid=True)
-
-
-
-lineplot([res.timepoints]*6,
-         [Cdiff[0,:], Cdiff[1,:], Cdiff[2,:], Cdiff[3,:],
-          Cdiff[4,:], Cdiff[5,:]],
+lineplot([res.timepoints[::intv]]*6,
+         [Cdiff[0,::intv], Cdiff[1,::intv], Cdiff[2,::intv], Cdiff[3,::intv],
+          Cdiff[4,::intv], Cdiff[5,::intv]],
          xlabel="time, seconds", ylabel="Rrecusor conc. rel. difference, %",
          label=["Grp-1", "Grp-2", "Grp-3", "Grp-4", "Grp-5", "Grp-6"],
          linestyles=["--"]*6, markers=["None"]*6, grid=True)
+

@@ -24,7 +24,7 @@ setuptools.setup(
     version="0.0.1",
     author="Matt Krecicki",
     author_email="matthewkrecicki@gmail.com",
-    description="A simple reactor kinetics modeling package",
+    description="A reactor kinetics modeling package",
     long_description=long_description,
     long_description_content_type="text/markdown",
     classifiers=[
@@ -35,7 +35,7 @@ setuptools.setup(
     python_requires='>=3.6',
     packages=['kinetics', 'kinetics.functions', 'kinetics.data',
               'kinetics.debug', 'kinetics.errors', 'kinetics.examples',
-              'kinetics.simplepke', 'kinetics.tests', 'kinetics.containers'],
+              'kinetics.tests', 'kinetics.containers'],
     package_data={
         'kineitcs.data': ['data/{}'.format(ext) for ext in DATA_EXTS],
     },

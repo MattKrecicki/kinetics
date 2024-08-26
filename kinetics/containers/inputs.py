@@ -9,50 +9,29 @@ into each of the solver classes.
 
 """
 
-
+from copy import deepcopy
 import numpy as np
 from kinetics.errors.checkerrors import _inlist, _isstr, _innotlist, \
-    _isequallength
+    _isequallength, _isint, _islist, _ispositive, _iszeropositive, _isdict,\
+    _containall
 from kinetics.errors.customerrors import _checkdict, _pkecheck
+from kinetics.functions.interpolation import LinearInterp, BiLinearInterp, \
+    TriLinearInterp
 
 
-class regionKineticsData:
-    
-    
-    KOBAYASHI_DICT = \
-        {"Id": [str, None, "region name", "n/a", False],
-         
-         "lj": [float, None, "region i's inverse neutron speed",
-                "seconds/meters", True],
-         
-         "kjk": [np.ndarray, None, "region prompt neutron coupling coefficients", "unitless", True],
-         
-         "kdjk": [np.ndarray, None, "region delayed neutron coupling coefficients", "unitless", True],
-         
-         "beta": [np.ndarray, float, "delayed neutron fraction", "unitless",
-                  True],
-         
-         "lamda": [np.ndarray, float, "delay neutron group decay constant",
-                   "1/seconds", True],
-         
-         "Q": [float, None, "average recoverable energy released per fission",
-               "MeV/fission", True],
-         
-         "volume": [float, None, "volume of the region", "meters^3", True],
-         
-         "v": [float, None, "one-group effective neutron velocity",
-               "meters/second", True]}
-    
+class averyregion:
     
     AVERY_DICT = \
-        {"Ljk": [np.ndarray, float, "region's inverse neutron speed to each region",
+        {"Ljk": [np.ndarray, float, "region's prompt neutron mean generation time to each region",
                  "seconds/meter", True],
+         
+         "Ljkd": [np.ndarray, float, "region's delayed neutron mean generate time to each region",
+                  "seconds/meter", True],
          
          "Kjk": [np.ndarray, float, "region's fission generation coupling coefficient",
                  "unitless", True],
          
-         
-         "Bjk": [np.ndarray, float, "fraction of delayed neutrons emitted in region j "
+         "Kjkd": [np.ndarray, float, "fraction of delayed neutrons emitted in region j "
                  "that produce fission in region k", "unitless",
                  True],
          
@@ -65,23 +44,75 @@ class regionKineticsData:
          "Q": [float, None, "average recoverable energy released per fission",
                "MeV/fission", True],
          
-         "volume": [float, None, "volume of the region", "meters^3", True],
-         
          "v": [float, None, "one-group effective neutron velocity",
                "meters/second", True],
          
-         "Id": [str, None, "region name", "n/a", False],}
+         "coupling": [list, str, "list the details coupling of each region",
+                      "n/a", True],
+         }
+    
+    
+    def _checkinputs(self):
+        """function runs error checking on state point of region inputs"""
+        
+        #run basic errror checking on inputs 
+        _checkdict(self.AVERY_DICT, self)
+        
+        #make sure all the arrays are the correct length
+        expL = len(self.coupling)
+        Lkeys = ["Ljk", "Ljkd", "Kjk", "Kjkd"]
+        for key in Lkeys:
+            _isequallength(getattr(self, key), expL, self.AVERY_DICT[key][2])
+        
+        #check values that should be zero positive
+        zposKeys = ["Ljk", "Ljkd", "Kjk", "Kjkd", "Bki", "lamdaki"]
+        for key in zposKeys:
+            for val in getattr(self, key):
+                _iszeropositive(val, "{} in {}".format(val, key))
+        
+        #check values that must be positive
+        _ispositive(self.Q, "average recoverable energy released per fission")
+        _ispositive(self.v, "one-group effective neutron velocity")
+        
+    
+    def __init__(self, **kwargs):
+        """function initalizes avery's multipoint kinetics region container"""
+        
+        self.__dict__.update(kwargs)
+        self._checkinputs()
+
+
+class regionKineticsData:
+    
+    
+    REGION_DICT = {"dependencies": [list, str, 
+                                    "list of dependences for input data", "n/a",
+                                    True],
+                   
+                   "Id": [str, None, "region name", "n/a", True],
+                   
+                   "typ": [str, None, "multi-point kinetics model type", "n/a",
+                           True],
+                   
+                   "x": [float, None, "x-axis position", "meters", False],
+                   
+                   "y": [float, None, "y-axis position", "meters", False],
+                   
+                   "z": [float, None, "z-axis position", "meters", False],
+                   
+                   "volume": [float, None, "volume of the region", "meters^3", 
+                              True]}
     
     
     def __checkinputs(self):
         """function runs basic error checking on region kinetics data"""
         
+        #make sure all required keys are given
+        
         if "typ" not in list(self.__dict__.keys()):
             raise ValueError("typ keyword must be given for kinetics data container")
-            
-        _inlist(self.typ, "multi-point kinetic model solution", ["kobayashi", "avery"])
         
-        _checkdict(self._getdict(), self)
+        _inlist(self.typ, "multi-point kinetic model solution", ["avery"])
 
     
     def __init__(self, **kwargs):
@@ -90,63 +121,184 @@ class regionKineticsData:
         self.__dict__.update(kwargs)
         self.__checkinputs()
         
+        self.states = []
+        #initalize dependency lists
+        for dep in self.dependencies:
+            setattr(self, dep, [])
         
+        self.valid = False
+        
+    
     def _getdict(self):
         """utility function returns input dict"""
-            
-        if self.typ == "kobayashi":
-            Dict = self.KOBAYASHI_DICT
-        elif self.typ == "avery":
+        
+        if self.typ == "avery":
             Dict = self.AVERY_DICT
             
         return Dict
+    
+    def add(self, **kwargs):
+        """function allows user to add a state to the region container"""
+        
+        if self.typ == "avery":
+            
+            state = averyregion(**kwargs)
+            
+            for dep in self.dependencies:
+                val = getattr(state, dep) 
+                deplist = getattr(self, dep)
+                deplist.append(val)
+                setattr(self, dep, deplist)
+            
+            self.states.append(state)
+        
+        else:
+            raise ValueError("only avery MPK method has been implemented")
 
+    
+    
+    def __validate(self):
+        """function validates region's inputs"""
+        
+        
+        self.valid = True
+    
+    
+    def evaluate(self, **kwargs):
+        """function evaluates kinetic data based on given dependencies"""
+        
+        #should include the parameter of interest
+        
+        
+        pass
+    
 
 class multiPointKineticsInputsContainer:
     
     
-    def __init__(self, typ):
-        """function initalizes multipoint kinetics input container"""
+    def _checkinputs(self):
+        """fucntion checks inputs for class initialization"""
+                
+        _inlist(self.typ, "multipoint kinetics solution method", ["avery"])
+        _isint(self.nregions, "number of regions in multipoint model")
+        _isdict(self.dependencies, "list of variables that the inputs are dependent on")
+        _islist(self.order, "preferred order of region inputs")
+        _isint(self.ndelayed, "number of delayed neutron groups")
+        if len(self.dependencies.keys()) > 3:
+            raise ValueError("code any only support up to three dependencies")
+        for region in self.order: _isstr(region, "region {}".format(region))
         
-        _inlist(typ, "multipoint kinetics solution method", ["Kobayashi", "avery"])
+    
+    def __init__(self, typ=False, nregions=False, dependencies=None,
+                 order=False, ndelayed=False):
+        """function initalizes multipoint kinetics input container"""       
+        
         self.typ = typ
-        self.validated = False
+        self.nregions = nregions
+        self.order = order
+        self.ndelayed = ndelayed
+        self.dependencies = {}
+        
+        #setup dependencies dict
+        for di in dependencies: self.dependencies[di] = []        
+        self._checkinputs()
+        
         self.regions = []
         self.Ids = []
+        self.validated = False
     
     
-    def add(self, **kwargs):
+    def add(self, region):
         """function adds a region's kinetic data to container"""
         
-        region = regionKineticsData(**kwargs)
+        #make sure data has not already been defined
         _innotlist(region.Id, "region Id", self.Ids)
+        
+        #check to make sure data typ is correct
+        if region.typ != self.typ:
+            raise ValueError("contain data typ is {}, region {}'s data typ is "
+                             "{}".format(self.typ, region.Id, region.typ))
+        
+        #make sure all regions needed are defined
+        for state in region.states:
+            _containall(state.coupling, self.order)   
+            #make sure the correct number of delayed groups is used
+            _isequallength(state.Bki, self.ndelayed, 
+                           "number of delayed groups in region {}".format(region.Id))
+            _isequallength(state.lamdaki, self.ndelayed, 
+                           "number of delayed groups in region {}".format(region.Id))
+        
+        #add data to container
         self.Ids.append(region.Id)
         self.regions.append(region)
-        
+
     
+    def __sortstates(self):
+        """sorts states input data to ensure correct order of matrix
+        construction"""
+        
+        for region, idxRegion in zip(self.regions, range(len(self.regions))):
+            
+            for state, idxState in zip(region.states, range(len(region.states))):
+                
+                for key in ['Ljk', 'Ljkd', 'Kjk', 'Kjkd']:
+                    new = np.zeros(self.nregions)
+                    old = getattr(state, key)
+                    for inp, j in zip(self.order, range(self.nregions)):
+                        idx = np.where(np.array(state.coupling) == inp)[0][0]
+                        new[j] = old[idx]
+                    
+                    setattr(state, key, new)
+                
+                state.coupling = np.array(self.order)
+                self.regions[idx].states[idxState] = state
+    
+    
+    def validate(self):
+        """function ensures that each region can be coupled"""
+        
+        #make sure the correct number of region is defined
+        _isequallength(self.regions, self.nregions, "number of defined regions")
+                
+        #make sure all the expected names are given
+        _containall(self.Ids, self.order)
+        
+        #make sure all data is given in the correct format
+        self.__sortstates()
+        
+        #set up bounds of dependencies
+        
+        #update flag to show inputs are validated
+        self.validated = True
+
+
     def get(self, Id):
         """function gets a specific region's kinetic data"""
         
         return self.regions[np.where(np.array(self.Ids) == Id)[0][0]]        
     
     
-    def validate(self):
-        """function ensures that each region can be coupled"""
+    def __constructAveryMatrix(self, **kwargs):
+        """function builds avery mpk formulation matrix"""
         
-        expL = len(self.Ids)
+        l = self.nregions * (self.nregions + self.ndelayed)
         
+        mtxM = np.zeros((l, l))
+        
+        
+        
+    
+    
+    def constructmatrix(self, **kwargs):
+        """function constructs matrix based on defined dependencies"""
+                
         if self.typ == "avery":
-            checkKeys = ["Ljk", "Kjk", "Bjk"]
-        else:
-            raise ValueError("Kobayashi has not been implemented yet")
+            mtxM = self.__constructAveryMatrix(**kwargs)
         
-        for Id in self.Ids:
-            region = self.get(Id)
-            for key in checkKeys:
-                _isequallength(getattr(region, key), expL,
-                               region._getdict()[key][2])
         
-        self.validated = True
+        return mtxM
+    
+    
 
 
 class pointkineticsInputsContainer:

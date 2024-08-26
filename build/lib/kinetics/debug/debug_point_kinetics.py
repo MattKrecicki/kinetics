@@ -18,13 +18,15 @@ from kinetics.functions.plotters import lineplot
 
 
 # define reactivity scenario
-timepoints = np.linspace(0.0, 100.0, 200)
+timepoints = np.linspace(0.0, 40.0, 1000000)
 
-rhoext = controlrule(['linear', 'linear'],
-                     [[0.0, 0.0], [0.0, 0.003445]],
-                     [0.5, 10.0])
+rhoext = controlrule(['linear',   'linear', 'linear'],
+                     [[0.0, 0.0], [0.00005, 0.0], [-0.00005, 0.00049999995+0.0005]],
+                     [0.000001,    10.0,           20.0])
 
-rhoext = controlrule(['linear'], [[0.0, 0.0]], [0.5])
+#rhoext = controlrule(['linear'], [[0.0, 0.0]], [0.5])
+
+
 
 # define point kinetics parameters
 beta = 0.00689 * np.array([0.033, 0.219, 0.196, 0.395, 0.115, 0.042])
@@ -46,7 +48,7 @@ inputs = \
 pkesolver = pke(inputs)
 
 # execute solver
-pkesolver.solve()
+pkesolver.solve(rtol=1e-8)
 
 #plot change in neutron population
 lineplot([pkesolver.inputs.timepoints],

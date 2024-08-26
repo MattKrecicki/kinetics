@@ -36,6 +36,21 @@ def _isstr(var, description):
                         .format(description, var))
 
 
+def _isfloat(var, description):
+    """checks if the variable is positive"""
+    _isnumber(var, description)
+    if not isinstance(var, float):
+        raise ValueError("{} must be float and not {}"
+                         .format(description, var))
+        
+
+def _isdict(var, description):
+    """checks if the variable is positive"""
+    if not isinstance(var, dict):
+        raise ValueError("{} must be float and not {}"
+                         .format(description, var))
+
+
 def _isbool(var, description):
     """checks if the variable of boolean type"""
     if not isinstance(var, bool):
@@ -317,3 +332,9 @@ def _isSortedArray(var, description):
     if not (newvar > 0).all():
         raise ValueError("{} must be sorted and unique {}"
                          .format(description, var))
+
+
+def _containall(list1, list2):
+    """check if list1 contains all elements of list2"""
+    if all(elem in list1  for elem in list2) is False:
+        raise ValueError("{} does not contain all of {}".format(list1, list2))

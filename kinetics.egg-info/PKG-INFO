@@ -1,7 +1,7 @@
 Metadata-Version: 2.1
 Name: kinetics
 Version: 0.0.1
-Summary: A simple reactor kinetics modeling package
+Summary: A reactor kinetics modeling package
 Author: Matt Krecicki
 Author-email: matthewkrecicki@gmail.com
 Classifier: Programming Language :: Python :: 3

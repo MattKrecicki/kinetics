@@ -36,6 +36,14 @@ def _isstr(var, description):
                         .format(description, var))
 
 
+def _isfloat(var, description):
+    """checks if the variable is positive"""
+    _isnumber(var, description)
+    if not isinstance(var, float):
+        raise ValueError("{} must be float and not {}"
+                         .format(description, var))
+
+
 def _isbool(var, description):
     """checks if the variable of boolean type"""
     if not isinstance(var, bool):
