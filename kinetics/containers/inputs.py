@@ -9,14 +9,12 @@ into each of the solver classes.
 
 """
 
-from copy import deepcopy
 import numpy as np
 from kinetics.errors.checkerrors import _inlist, _isstr, _innotlist, \
     _isequallength, _isint, _islist, _ispositive, _iszeropositive, _isdict,\
-    _containall
+    _containall, _inrange
 from kinetics.errors.customerrors import _checkdict, _pkecheck
-from kinetics.functions.interpolation import LinearInterp, BiLinearInterp, \
-    TriLinearInterp
+from kinetics.functions.interpolation import LinearInterp
 
 
 class averyregion:
@@ -35,10 +33,10 @@ class averyregion:
                  "that produce fission in region k", "unitless",
                  True],
          
-         "Bki": [np.ndarray, float, "delayed neutron fraction for region", "unitless",
+         "Bjk": [dict, None, "delayed neutron fraction", "unitless",
                  True],
          
-         "lamdaki": [np.ndarray, float, "delay neutron group decay constant",
+         "lamdajk": [dict, None, "delay neutron group decay constant",
                      "1/seconds", True],
          
          "Q": [float, None, "average recoverable energy released per fission",
@@ -49,7 +47,9 @@ class averyregion:
          
          "coupling": [list, str, "list the details coupling of each region",
                       "n/a", True],
-         }
+         
+         "detectors": [dict, None, "dictionary details detector respone "
+                       "functions for each region", "n/a", False]}
     
     
     def _checkinputs(self):
@@ -65,14 +65,26 @@ class averyregion:
             _isequallength(getattr(self, key), expL, self.AVERY_DICT[key][2])
         
         #check values that should be zero positive
-        zposKeys = ["Ljk", "Ljkd", "Kjk", "Kjkd", "Bki", "lamdaki"]
+        zposKeys = ["Ljk", "Ljkd", "Kjk", "Kjkd"]
         for key in zposKeys:
             for val in getattr(self, key):
                 _iszeropositive(val, "{} in {}".format(val, key))
         
+        #check that delayed data is correct format
+        _isdict(self.Bjk, "delayed neutron fraction data")
+        _isdict(self.lamdajk, "delayed neutron decay constant data")
+        _containall(list(self.Bjk.keys()), list(self.lamdajk.keys()))
+        for key in list(self.Bjk.keys()):
+            _isequallength(self.Bjk[key], len(self.lamdajk[key]),
+                           "delayed neutron group {} data".format(key))
+        
         #check values that must be positive
         _ispositive(self.Q, "average recoverable energy released per fission")
         _ispositive(self.v, "one-group effective neutron velocity")
+        
+        #check that detectors are correctly defined
+        if "detectors" in list(self.__dict__.keys()):
+            pass
         
     
     def __init__(self, **kwargs):
@@ -137,6 +149,7 @@ class regionKineticsData:
             
         return Dict
     
+    
     def add(self, **kwargs):
         """function allows user to add a state to the region container"""
         
@@ -154,7 +167,6 @@ class regionKineticsData:
         
         else:
             raise ValueError("only avery MPK method has been implemented")
-
     
     
     def __validate(self):
@@ -164,13 +176,30 @@ class regionKineticsData:
         self.valid = True
     
     
+    def __evalsingle(self, **kwargs):
+        """function evaluates data bas on input kwargs for a singl  """
+        
+        varnam = list(kwargs.keys())[0]
+        
+        _inlist(varnam, "input kwarg {}".format(varnam), self.dependencies)
+        
+        varval = kwargs[varnam]
+        
+        statevals = getattr(self, varnam)
+        
+        _inrange(varval, "{} input val {}".format(varnam, varval), 
+                 [np.min(statevals), np.max(statevals)])
+        
+    
+    
     def evaluate(self, **kwargs):
         """function evaluates kinetic data based on given dependencies"""
         
-        #should include the parameter of interest
-        
-        
-        pass
+        if len(self.dependencies) == 1:
+            data = self.__evalsingle(**kwargs)
+        else:
+            raise ValueError("currently code only supports a single dependency")
+                
     
 
 class multiPointKineticsInputsContainer:
@@ -187,16 +216,20 @@ class multiPointKineticsInputsContainer:
         if len(self.dependencies.keys()) > 3:
             raise ValueError("code any only support up to three dependencies")
         for region in self.order: _isstr(region, "region {}".format(region))
+        if self.detectors is not False:
+            _islist(self.detectors, "list of detector names")
+            for det in self.detectors: _isstr(det, "detector name {}".format(det))
         
     
     def __init__(self, typ=False, nregions=False, dependencies=None,
-                 order=False, ndelayed=False):
+                 order=False, ndelayed=False, detectors=False):
         """function initalizes multipoint kinetics input container"""       
         
         self.typ = typ
         self.nregions = nregions
         self.order = order
         self.ndelayed = ndelayed
+        self.detectors = detectors
         self.dependencies = {}
         
         #setup dependencies dict
@@ -223,10 +256,8 @@ class multiPointKineticsInputsContainer:
         for state in region.states:
             _containall(state.coupling, self.order)   
             #make sure the correct number of delayed groups is used
-            _isequallength(state.Bki, self.ndelayed, 
-                           "number of delayed groups in region {}".format(region.Id))
-            _isequallength(state.lamdaki, self.ndelayed, 
-                           "number of delayed groups in region {}".format(region.Id))
+            _isequallength(state.Bjk.keys(), self.ndelayed,\
+                    "number delayed groups in region {}".format(region.Id))
         
         #add data to container
         self.Ids.append(region.Id)
@@ -250,8 +281,17 @@ class multiPointKineticsInputsContainer:
                     
                     setattr(state, key, new)
                 
+                for key in []:
+                    pass
+                
                 state.coupling = np.array(self.order)
                 self.regions[idx].states[idxState] = state
+    
+    
+    def __generatelabels(self):
+        """function generates labels for each region to aid in the construction
+        of the matrix"""
+        pass
     
     
     def validate(self):
@@ -265,6 +305,9 @@ class multiPointKineticsInputsContainer:
         
         #make sure all data is given in the correct format
         self.__sortstates()
+        
+        #setp up labels for each region
+        self.__generatelabels()
         
         #set up bounds of dependencies
         
@@ -285,7 +328,7 @@ class multiPointKineticsInputsContainer:
         
         mtxM = np.zeros((l, l))
         
-        
+        #get each regions interpolated data
         
     
     

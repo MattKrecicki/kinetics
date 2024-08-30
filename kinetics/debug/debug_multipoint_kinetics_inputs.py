@@ -27,8 +27,15 @@ from kinetics.containers.inputs import multiPointKineticsInputsContainer as \
 # ----- Setup Multipoint Kinetics Data Container for Transient Analysis -------
 # -----------------------------------------------------------------------------
 
-mpkdata = inputsContainer(typ="avery", nregions=3, dependencies=["hrod"],
-                          order=["1", "2", "3"], ndelayed=1)
+mpkdata = \
+    inputsContainer(typ="avery", nregions=3, ndelayed=1,
+                    dependencies=["hrod"], order=["1", "2", "3"],
+                    detectors=["N", "S", "E", "W"])
+
+
+# when defining regions the Id will act as the fission site and the defined 
+# value will act as the fission sink. Therefore the Kjk defined in the first 
+# region is defined as k11, k21, k31
 
 
 # ----- initialize region 1 data ----------------------------------------------
@@ -36,45 +43,72 @@ r1 = \
     regionKineticsData(Id="1", typ="avery", x=0.0, y=-1.0, z=0.0, 
                        dependencies=["hrod"], volume=1.0)
 
+
 #add region 1's 0cm rod height function
+
 r1.add(#average energy released per fission
        Q=200.0,
        #one-group neutron velocity
        v=1.86E+04,        
-       #delayed neutron group decay constant
-       lamdaki = np.array([0.40529]),
-       #delayed neutron fraction groups
-       Bki = np.array([0.00376]),
-       #detail how couling is generated
-       coupling = ["1", "2", "3"],
-       # coupling to:  1      2       3
-       Kjk = np.array([0.92804, 0.03756,  0.03754]),
-       # delayed coupling, for this case assumed to be the same as the prompt population   
-       Kjkd = np.array([0.92804, 0.03756, 0.03754]),
-       # coupling to:  1      2       3
-       Ljk =  np.array([0.3613, 0.6154, 0.6126])*1e-6,
-       Ljkd = np.array([0.3613, 0.6154, 0.6126])*1e-6,
+       
+       #detail how couling is generated so matrix can be constructed correctly
+       coupling = [    "1",     "2",      "3"],
+       
+       # prompt fission coupling coefficients (sink < src)
+       # coupling to:   1 < 1    2 < 1    3 < 1
+       Kjk =  np.array([0.92804, 0.03754, 0.03756]),  
+       Kjkd = np.array([0.92804, 0.03754, 0.03756]),
+       
+       # mean generation times (sink < src)
+       # coupling to:   1 < 1   2 < 1   3 < 1
+       Ljk =  np.array([0.3613, 0.6126, 0.6154])*1e-6,
+       Ljkd = np.array([0.3613, 0.6126, 0.6154])*1e-6,
+       
+       #delayed neutron group data, only a single group included
+       # coupling to:           1 < 1     2 < 1     3 < 1
+       Bjk =      {1: np.array([0.003760, 0.003639, 0.003657])},
+       lamdajk = {1: np.array([0.40529,  0.40529,  0.40529])},
+       
+       #specific detector response functions
+       detectors={"N": {"kp": 0.1, "lp": 10e-6, "kd": 0.1, "ld": 10e-6},
+                  "S": {"kp": 1.0, "lp": 10e-6, "kd": 1.0, "ld": 10e-6},
+                  "E": {"kp": 0.2, "lp": 10e-6, "kd": 0.2, "ld": 10e-6},
+                  "W": {"kp": 0.2, "lp": 10e-6, "kd": 0.2, "ld": 10e-6}},
+       
        #specify dependency variables
        hrod=0.0)
 
+
 #add region 1's 35cm rod height function
-r1.add(Q=200.0,
+r1.add(#average energy released per fission
+       Q=200.0,
        #one-group neutron velocity
-       v=1.86E+04,
-       #volume of fissionable region
-       #delayed neutron group decay constant
-       lamdaki = np.array([0.40529]),
-       #delayed neutron fraction groups
-       Bki = np.array([0.00376]),
-       #detail how couling is generated
-       coupling = ["1", "2", "3"],
-       # coupling to:  1      2       3
-       Kjk = np.array([0.92804, 0.03756, 0.03754]),
-       # delayed coupling, for this case assumed to be the same as the prompt population   
-       Kjkd = np.array([0.92804, 0.03756, 0.03754]),
-       # coupling to:  1      2       3
-       Ljk =  np.array([0.3613, 0.6154, 0.6126])*1e-6,
-       Ljkd = np.array([0.3613, 0.6154, 0.6126])*1e-6,
+       v=1.86E+04,        
+       
+       #detail how couling is generated so matrix can be constructed correctly
+       coupling = [    "1",     "2",      "3"],
+       
+       # prompt fission coupling coefficients (sink < src)
+       # coupling to:   1 < 1    2 < 1    3 < 1
+       Kjk =  np.array([0.95226, 0.03820, 0.03616]),  
+       Kjkd = np.array([0.95226, 0.03820, 0.03616]),
+       
+       # mean generation times (sink < src)
+       # coupling to:   1 < 1   2 < 1   3 < 1
+       Ljk =  np.array([0.3690, 0.6115, 0.6162])*1e-6,
+       Ljkd = np.array([0.3690, 0.6115, 0.6162])*1e-6,
+       
+       #delayed neutron group data, only a single group included
+       # coupling to:           1 < 1     2 < 1     3 < 1
+       Bjk =      {1: np.array([0.003766, 0.003633, 0.003651])},
+       lamdajk = {1: np.array([0.40529,  0.40529,  0.40529])},
+       
+       #specific detector response functions
+       detectors={"N": {"kp": 0.1, "lp": 10e-6, "kd": 0.1, "ld": 10e-6},
+                  "S": {"kp": 1.0, "lp": 10e-6, "kd": 1.0, "ld": 10e-6},
+                  "E": {"kp": 0.2, "lp": 10e-6, "kd": 0.2, "ld": 10e-6},
+                  "W": {"kp": 0.2, "lp": 10e-6, "kd": 0.2, "ld": 10e-6}},
+       
        #specify dependency variables
        hrod=35.0)
 
@@ -91,22 +125,32 @@ r2 = \
 r2.add(#average energy released per fission
        Q=200.0,
        #one-group neutron velocity
-       v=1.86E+04,
-       #volume of fissionable region
-       volume=1.0,
-       #delayed neutron group decay constant
-       lamdaki = np.array([0.40529]),
-       #delayed neutron fraction groups
-       Bki = np.array([0.00376]),
-       #detail how couling is generated
-       coupling = ["1", "2", "3"],
-       # coupling to:  1      2       3
-       Kjk = np.array([0.03754, 0.92804, 0.03756]),
-       # delayed coupling, for this case assumed to be the same as the prompt population   
-       Kjkd = np.array([0.03754, 0.92804, 0.03756]),
-       # coupling to:  1      2       3
-       Ljk =  np.array([0.6126, 0.3613, 0.6154])*1e-6,
-       Ljkd = np.array([0.6126, 0.3613, 0.6154])*1e-6,
+       v=1.86E+04,        
+       
+       #detail how couling is generated so matrix can be constructed correctly
+       coupling = [    "1",     "2",      "3"],
+       
+       # prompt fission coupling coefficients (sink < src)
+       # coupling to:   1 < 2    2 < 2    3 < 2
+       Kjk =  np.array([0.03756, 0.92804, 0.03754]),  
+       Kjkd = np.array([0.03756, 0.92804, 0.03754]),
+       
+       # mean generation times (sink < src)
+       # coupling to:   1 < 2   2 < 2   3 < 2
+       Ljk =  np.array([0.6154, 0.3613, 0.6126])*1e-6,
+       Ljkd = np.array([0.6154, 0.3613, 0.6126])*1e-6,
+       
+       #delayed neutron group data, only a single group included
+       # coupling to:           1 < 2     2 < 2     3 < 2
+       Bjk =      {1: np.array([0.003657, 0.003760, 0.003639])},
+       lamdajk = {1: np.array([0.40529,  0.40529,  0.40529])},
+       
+       #specific detector response functions
+       detectors={"N": {"kp": 0.1, "lp": 10e-6, "kd": 0.1, "ld": 10e-6},
+                  "S": {"kp": 1.0, "lp": 10e-6, "kd": 1.0, "ld": 10e-6},
+                  "E": {"kp": 0.2, "lp": 10e-6, "kd": 0.2, "ld": 10e-6},
+                  "W": {"kp": 0.2, "lp": 10e-6, "kd": 0.2, "ld": 10e-6}},
+       
        #specify dependency variables
        hrod=0.0)
 
@@ -115,22 +159,32 @@ r2.add(#average energy released per fission
 r2.add(#average energy released per fission
        Q=200.0,
        #one-group neutron velocity
-       v=1.86E+04,
-       #volume of fissionable region
-       volume=1.0,
-       #delayed neutron group decay constant
-       lamdaki = np.array([0.40529]),
-       #delayed neutron fraction groups
-       Bki = np.array([0.00376]),
-       #detail how couling is generated
-       coupling = ["1", "2", "3"],
-       # coupling to:  1      2       3
-       Kjk = np.array([0.03754, 0.92804, 0.03756]),
-       # delayed coupling, for this case assumed to be the same as the prompt population   
-       Kjkd = np.array([0.03754, 0.92804, 0.03756]),
-       # coupling to:  1      2       3
-       Ljk =  np.array([0.6126, 0.3613, 0.6154])*1e-6,
-       Ljkd = np.array([0.6126, 0.3613, 0.6154])*1e-6,
+       v=1.86E+04,        
+       
+       #detail how couling is generated so matrix can be constructed correctly
+       coupling = [    "1",     "2",      "3"],
+       
+       # prompt fission coupling coefficients (sink < src)
+       # coupling to:   1 < 2    2 < 2    3 < 2
+       Kjk =  np.array([0.03766, 0.92029, 0.03488]),  
+       Kjkd = np.array([0.03766, 0.92029, 0.03488]),
+       
+       # mean generation times (sink < src)
+       # coupling to:   1 < 2   2 < 2   3 < 2
+       Ljk =  np.array([0.6161, 0.3588, 0.6178])*1e-6,
+       Ljkd = np.array([0.6161, 0.3588, 0.6178])*1e-6,
+       
+       #delayed neutron group data, only a single group included
+       # coupling to:           1 < 2     2 < 2     3 < 2
+       Bjk =      {1: np.array([0.003651, 0.003756, 0.003632])},
+       lamdajk = {1: np.array([0.40529,  0.40529,  0.40529])},
+       
+       #specific detector response functions
+       detectors={"N": {"kp": 0.1, "lp": 10e-6, "kd": 0.1, "ld": 10e-6},
+                  "S": {"kp": 1.0, "lp": 10e-6, "kd": 1.0, "ld": 10e-6},
+                  "E": {"kp": 0.2, "lp": 10e-6, "kd": 0.2, "ld": 10e-6},
+                  "W": {"kp": 0.2, "lp": 10e-6, "kd": 0.2, "ld": 10e-6}},
+       
        #specify dependency variables
        hrod=35.0)
 
@@ -148,20 +202,32 @@ r3 = \
 r3.add(#average energy released per fission
        Q=200.0,
        #one-group neutron velocity
-       v=1.86E+04,
-       #delayed neutron group decay constant
-       lamdaki = np.array([0.40529]),
-       #delayed neutron fraction groups
-       Bki = np.array([0.003657]),
-       #detail how couling is generated
-       coupling = ["1", "2", "3"],
-       # coupling to:  1      2       3
-       Kjk = np.array([0.03756, 0.03754, 0.92804]),
-       # delayed coupling, for this case assumed to be the same as the prompt population   
-       Kjkd = np.array([0.03756, 0.03754, 0.92804]),
-       # coupling to:  1      2       3
-       Ljk =  np.array([0.6154, 0.6126, 0.3613])*1e-6,
-       Ljkd = np.array([0.6154, 0.6126, 0.3613])*1e-6,
+       v=1.86E+04,        
+       
+       #detail how couling is generated so matrix can be constructed correctly
+       coupling = [    "1",     "2",      "3"],
+       
+       # prompt fission coupling coefficients (sink < src)
+       # coupling to:   1 < 3    2 < 3    3 < 3
+       Kjk =  np.array([0.03754, 0.03756, 0.92804]),  
+       Kjkd = np.array([0.03754, 0.03756, 0.92804]),
+       
+       # mean generation times (sink < src)
+       # coupling to:   1 < 3   2 < 3   3 < 3
+       Ljk =  np.array([0.6126, 0.6154, 0.3613])*1e-6,
+       Ljkd = np.array([0.6126, 0.6154, 0.3613])*1e-6,
+       
+       #delayed neutron group data, only a single group included
+       # coupling to:           1 < 3     2 < 3     3 < 3
+       Bjk =      {1: np.array([0.003639, 0.003657, 0.003760])},
+       lamdajk = {1: np.array([0.40529,  0.40529,  0.40529])},
+       
+       #specific detector response functions
+       detectors={"N": {"kp": 0.1, "lp": 10e-6, "kd": 0.1, "ld": 10e-6},
+                  "S": {"kp": 1.0, "lp": 10e-6, "kd": 1.0, "ld": 10e-6},
+                  "E": {"kp": 0.2, "lp": 10e-6, "kd": 0.2, "ld": 10e-6},
+                  "W": {"kp": 0.2, "lp": 10e-6, "kd": 0.2, "ld": 10e-6}},
+       
        #specify dependency variables
        hrod=0.0)
 
@@ -170,27 +236,38 @@ r3.add(#average energy released per fission
 r3.add(#average energy released per fission
        Q=200.0,
        #one-group neutron velocity
-       v=1.86E+04,
-       #volume of fissionable region
-       volume=1.0,
-       #delayed neutron group decay constant
-       lamdaki = np.array([0.40529]),
-       #delayed neutron fraction groups
-       Bki = np.array([0.003657]),
-       #detail how couling is generated
-       coupling = ["1", "2", "3"],
-       # coupling to:  1      2       3
-       Kjk = np.array([0.03756, 0.03754, 0.92804]),
-       # delayed coupling, for this case assumed to be the same as the prompt population   
-       Kjkd = np.array([0.03756, 0.03754, 0.92804]),
-       # coupling to:  1      2       3
-       Ljk =  np.array([0.6154, 0.6126, 0.3613])*1e-6,
-       Ljkd = np.array([0.6154, 0.6126, 0.3613])*1e-6,
+       v=1.86E+04,        
+       
+       #detail how couling is generated so matrix can be constructed correctly
+       coupling = [    "1",     "2",      "3"],
+       
+       # prompt fission coupling coefficients (sink < src)
+       # coupling to:   1 < 3    2 < 3    3 < 3
+       Kjk =  np.array([0.03561, 0.03489, 0.92116]),  
+       Kjkd = np.array([0.03561, 0.03489, 0.92116]),
+       
+       # mean generation times (sink < src)
+       # coupling to:   1 < 3   2 < 3   3 < 3
+       Ljk =  np.array([0.6145, 0.6214, 0.3595])*1e-6,
+       Ljkd = np.array([0.6145, 0.6214, 0.3595])*1e-6,
+       
+       #delayed neutron group data, only a single group included
+       # coupling to:           1 < 3     2 < 3     3 < 3
+       Bjk =      {1: np.array([0.003633, 0.003649, 0.003756])},
+       lamdajk =  {1: np.array([0.40529,  0.40529,  0.40529])},
+       
+       #specific detector response functions
+       detectors={"N": {"kp": 0.1, "lp": 10e-6, "kd": 0.1, "ld": 10e-6},
+                  "S": {"kp": 1.0, "lp": 10e-6, "kd": 1.0, "ld": 10e-6},
+                  "E": {"kp": 0.2, "lp": 10e-6, "kd": 0.2, "ld": 10e-6},
+                  "W": {"kp": 0.2, "lp": 10e-6, "kd": 0.2, "ld": 10e-6}},
+       
        #specify dependency variables
        hrod=35.0)
 
 #add 3rd region to data container
 mpkdata.add(r3)
+
 
 # -----------------------------------------------------------------------------
 # ----- Assemble final container ----------------------------------------------
@@ -198,5 +275,7 @@ mpkdata.add(r3)
 
 mpkdata.validate()
 
+tst = r3.evaluate(hrod=0.0)
+
 # use export function to save inputs for future use
-mtxM = mpkdata.constructmatrix(hrod=0.0)
+#mtxM = mpkdata.constructmatrix(hrod=0.0)
