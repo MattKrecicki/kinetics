@@ -9,6 +9,7 @@ into each of the solver classes.
 
 """
 
+from copy import deepcopy
 import numpy as np
 from kinetics.errors.checkerrors import _inlist, _isstr, _innotlist, \
     _isequallength, _isint, _islist, _ispositive, _iszeropositive, _isdict,\
@@ -49,11 +50,21 @@ class averyregion:
                       "n/a", True],
          
          "detectors": [dict, None, "dictionary details detector respone "
-                       "functions for each region", "n/a", False]}
+                       "functions for each region", "n/a", False],
+         
+         
+         "bypass": [bool, None, "flag to bypass error checking",
+                    "n/a", False]}
     
     
     def _checkinputs(self):
         """function runs error checking on state point of region inputs"""
+        
+        if "bypass" in self.__dict__.keys():
+            if self.bypass is True:
+                return 
+        else:
+            self.bypass = False
         
         #run basic errror checking on inputs 
         _checkdict(self.AVERY_DICT, self)
@@ -187,19 +198,96 @@ class regionKineticsData:
         
         statevals = getattr(self, varnam)
         
+                
         _inrange(varval, "{} input val {}".format(varnam, varval), 
                  [np.min(statevals), np.max(statevals)])
         
-    
+        # ----- check if inputs matches with exact statepoint
+        if np.min(abs(varval - np.array(statevals))) < 1e-7:
+            idxNear = np.argmin(abs(varval - np.array(statevals)))
+            return self.states[idxNear]
+        
+        if len(statevals) == 1:
+            return self.states[0]
+        
+        # ----- run interpolation
+        
+        # find higher and lower stat points
+        ixh = \
+            np.searchsorted(np.array(statevals), varval, side='left',
+                            sorter=None)
+        ixl = ixh - 1
+        
+        #get data for upper and lower bounds
+        x0, x1 = statevals[ixl], statevals[ixh]
+        state0, state1 = self.states[ixl], self.states[ixh]
+        
+        newvals = {}
+        
+        if self.typ == "avery":
+            inpKeys = list(state0.AVERY_DICT.keys())
+        else:
+            raise ValueError("only avery mulitpoint kinetics is implemented")
+        
+        newvals["coupling"] = state0.coupling
+        newvals[varnam] = varval
+                
+        for key in inpKeys:
+            try:
+                newvals[key] = \
+                    LinearInterp(x0, x1, getattr(state0, key), getattr(state1, key),
+                                 varval)
+            except:
+                if key == "Bjk":
+                    newvals["Bjk"] = {}
+                    for key in list(state0.Bjk.keys()):
+                        newvals["Bjk"][key] = \
+                            LinearInterp(x0, x1, state0.Bjk[key], state1.Bjk[key],
+                                         varval)
+                
+                elif key == "lamdajk":
+                    newvals["lamdajk"] = {}
+                    for key in list(state0.Bjk.keys()):
+                        newvals["lamdajk"][key] = \
+                            LinearInterp(x0, x1, state0.lamdajk[key], 
+                                         state1.lamdajk[key], varval)
+                
+                elif key == "detectors":
+                    
+                    try:
+                        newvals["detectors"] = {}
+                    
+                        for key in list(state0.detectors.keys()):
+                            newvals["detectors"][key] = {}
+                        
+                            for key2 in state0.detectors[key]:
+                                newvals["detectors"][key][key2] = \
+                                    LinearInterp(x0, x1,
+                                                 state0.detectors[key][key2], 
+                                                 state1.detectors[key][key2],
+                                                 varval)
+                    except:
+                        pass
+                
+        #initalize new object
+        if self.typ == "avery":
+            newvals["bypass"] = True #bypasses error checking to save time
+            state = averyregion(**newvals)
+        else:
+            raise ValueError("only avery mulitpoint kinetics is implemented")
+        
+        return state
+
     
     def evaluate(self, **kwargs):
         """function evaluates kinetic data based on given dependencies"""
         
         if len(self.dependencies) == 1:
-            data = self.__evalsingle(**kwargs)
+            state = self.__evalsingle(**kwargs)
         else:
             raise ValueError("currently code only supports a single dependency")
-                
+        
+        return state
     
 
 class multiPointKineticsInputsContainer:
@@ -321,25 +409,14 @@ class multiPointKineticsInputsContainer:
         return self.regions[np.where(np.array(self.Ids) == Id)[0][0]]        
     
     
-    def __constructAveryMatrix(self, **kwargs):
-        """function builds avery mpk formulation matrix"""
+    def evaluate(self, **kwargs):
         
-        l = self.nregions * (self.nregions + self.ndelayed)
+        newrgs = []
+        for rg in self.regions:
+            newrgs.append(rg.evaluate(**kwargs))
         
-        mtxM = np.zeros((l, l))
-        
-        #get each regions interpolated data
-        
-    
-    
-    def constructmatrix(self, **kwargs):
-        """function constructs matrix based on defined dependencies"""
                 
-        if self.typ == "avery":
-            mtxM = self.__constructAveryMatrix(**kwargs)
-        
-        
-        return mtxM
+        return newrgs
     
     
 

@@ -268,6 +268,9 @@ r3.add(#average energy released per fission
 #add 3rd region to data container
 mpkdata.add(r3)
 
+#test region interpolator
+#tst = r3.evaluate(hrod=30.0)
+
 
 # -----------------------------------------------------------------------------
 # ----- Assemble final container ----------------------------------------------
@@ -275,7 +278,8 @@ mpkdata.add(r3)
 
 mpkdata.validate()
 
-tst = r3.evaluate(hrod=0.0)
+#test data object interpolator
+tstData = mpkdata.evaluate(hrod=30)
 
 # use export function to save inputs for future use
 #mtxM = mpkdata.constructmatrix(hrod=0.0)
