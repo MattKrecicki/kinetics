@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""input containers classes to easy use of ntpTransient code
+"""input containers classes to easy use of kinetics code
 
 This file contains the input container class which is used to feed information
 into each of the solver classes.
@@ -323,7 +323,7 @@ class multiPointKineticsInputsContainer:
         #setup dependencies dict
         for di in dependencies: self.dependencies[di] = []        
         self._checkinputs()
-        
+                
         self.regions = []
         self.Ids = []
         self.validated = False
@@ -369,8 +369,20 @@ class multiPointKineticsInputsContainer:
                     
                     setattr(state, key, new)
                 
-                for key in []:
-                    pass
+                for key in ['Bjk', 'lamdajk']:
+                    
+                    new = {}
+                    old = getattr(state, key)
+                    
+                    for grp in list(old.keys()):
+                        newi = np.zeros(len(old[grp]))
+                        oldi = old[grp]
+                        for inp, j in zip(self.order, range(self.nregions)):
+                            idx = np.where(np.array(state.coupling) == inp)[0][0]
+                            newi[j] = oldi[idx]
+                        new[grp] = newi
+                    
+                    setattr(state, key, new)
                 
                 state.coupling = np.array(self.order)
                 self.regions[idx].states[idxState] = state
@@ -379,7 +391,14 @@ class multiPointKineticsInputsContainer:
     def __generatelabels(self):
         """function generates labels for each region to aid in the construction
         of the matrix"""
-        pass
+        
+        for region in self.regions:
+            
+            srcsink = []
+            for sink in self.order:
+                srcsink.append(str(region.Id)+"<"+str(sink))
+            
+            setattr(region, "__srcsink", np.array(srcsink))
     
     
     def validate(self):
@@ -410,11 +429,12 @@ class multiPointKineticsInputsContainer:
     
     
     def evaluate(self, **kwargs):
+        """function evaluates each regions kinetic data based on defined
+        ependencies"""
         
         newrgs = []
         for rg in self.regions:
             newrgs.append(rg.evaluate(**kwargs))
-        
                 
         return newrgs
     

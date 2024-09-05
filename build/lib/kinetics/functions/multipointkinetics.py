@@ -13,15 +13,11 @@ MEV_2_J = 1.60218e-13
 
 import numpy as np
 from scipy.integrate import odeint
-from kinetics.errors.checkerrors import _ispositive, _isnonNegativeArray, _isint
+from kinetics.errors.checkerrors import _ispositive, _isnonNegativeArray,\
+    _isint
 
 
-
-def poweriteration():
-    pass
-
-
-
+AVERY_SOLVER_DICT = {}
 
 
 class avery:
@@ -49,13 +45,11 @@ class avery:
 
     # ----- solve initial conditions function
 
-    def __solveinitialconditions(self, rtol, k0=1.0, maxitr=None):
+    def __solveinitialconditions(self, srcepi=1e-10, keffepi=1e-6, maxitr=100):
         """function solvers inital condition to kind flux and precusor conc."""
         
-        _ispositive(k0, "initial guess for keff")
-        _isint(maxitr, "maximum number of power iterations to obtain steady "
-               "state neutron flux")        
-        
+                
+        pass            
 
     
     # ----- solve transient problem functions
@@ -67,18 +61,28 @@ class avery:
     def __postprocess(self, solution):
         pass
     
-
-    def solve(self, rtol=1e-10, k0=1.0, maxitr=None, noproc=None):
+    
+    def solve(self, srcepi=1e-10, keffepi=1e-6, maxitr=100, transtol=1e-10,
+              initialonly=True):
         """function solves transient problem via avery's method"""
         
-        _ispositive(rtol, "relative error tolerance for steady-state and"
-                    "transient solver")
+        # ----- run basic error checking
+        _ispositive(srcepi, "relative error tolerance for initial conditions "
+                    "source convergence")
+        _ispositive(keffepi, "abs error tolerance for keff convergence")      
+        _isint(maxitr, "maximum number of power iterations to obtain steady "
+               "state neutron flux")    
+        _ispositive(transtol, "relative tolerance for tranisent solver")
         
-        #obtain initial steady-state solution
-        x0 = self.__solveinitialconditions(rtol, k0, maxitr)
         
-        # obtain solution over defined transient
-        #solution = odeint(self.__dxdt, x0, self.inputs.timepoints, rtol=rtol)
+        # ----- obtain initial steady-state solution
+        x0 = self.__solveinitialconditions(srcepi, keffepi, maxitr)
+        
+        
+        # ----- obtain solution over defined transient
+        if initialonly is False:
+            solution = odeint(self.__dxdt, x0, self.inputs.timepoints, 
+                              rtol=transtol)
         
         # run post-processing features
         #self.__postprocess(solution)

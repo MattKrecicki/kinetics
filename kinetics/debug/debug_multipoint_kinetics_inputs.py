@@ -21,7 +21,7 @@ import numpy as np
 from kinetics.containers.inputs import regionKineticsData
 from kinetics.containers.inputs import multiPointKineticsInputsContainer as \
     inputsContainer
-
+from kinetics.functions.multipointkinetics import avery as transientsolver
 
 # -----------------------------------------------------------------------------
 # ----- Setup Multipoint Kinetics Data Container for Transient Analysis -------
@@ -67,7 +67,7 @@ r1.add(#average energy released per fission
        #delayed neutron group data, only a single group included
        # coupling to:           1 < 1     2 < 1     3 < 1
        Bjk =      {1: np.array([0.003760, 0.003639, 0.003657])},
-       lamdajk = {1: np.array([0.40529,  0.40529,  0.40529])},
+       lamdajk =  {1: np.array([0.40529,  0.40529,  0.40529])},
        
        #specific detector response functions
        detectors={"N": {"kp": 0.1, "lp": 10e-6, "kd": 0.1, "ld": 10e-6},
@@ -101,7 +101,7 @@ r1.add(#average energy released per fission
        #delayed neutron group data, only a single group included
        # coupling to:           1 < 1     2 < 1     3 < 1
        Bjk =      {1: np.array([0.003766, 0.003633, 0.003651])},
-       lamdajk = {1: np.array([0.40529,  0.40529,  0.40529])},
+       lamdajk =  {1: np.array([0.40529,  0.40529,  0.40529])},
        
        #specific detector response functions
        detectors={"N": {"kp": 0.1, "lp": 10e-6, "kd": 0.1, "ld": 10e-6},
@@ -143,7 +143,7 @@ r2.add(#average energy released per fission
        #delayed neutron group data, only a single group included
        # coupling to:           1 < 2     2 < 2     3 < 2
        Bjk =      {1: np.array([0.003657, 0.003760, 0.003639])},
-       lamdajk = {1: np.array([0.40529,  0.40529,  0.40529])},
+       lamdajk =  {1: np.array([0.40529,  0.40529,  0.40529])},
        
        #specific detector response functions
        detectors={"N": {"kp": 0.1, "lp": 10e-6, "kd": 0.1, "ld": 10e-6},
@@ -177,7 +177,7 @@ r2.add(#average energy released per fission
        #delayed neutron group data, only a single group included
        # coupling to:           1 < 2     2 < 2     3 < 2
        Bjk =      {1: np.array([0.003651, 0.003756, 0.003632])},
-       lamdajk = {1: np.array([0.40529,  0.40529,  0.40529])},
+       lamdajk =  {1: np.array([0.40529,  0.40529,  0.40529])},
        
        #specific detector response functions
        detectors={"N": {"kp": 0.1, "lp": 10e-6, "kd": 0.1, "ld": 10e-6},
@@ -220,7 +220,7 @@ r3.add(#average energy released per fission
        #delayed neutron group data, only a single group included
        # coupling to:           1 < 3     2 < 3     3 < 3
        Bjk =      {1: np.array([0.003639, 0.003657, 0.003760])},
-       lamdajk = {1: np.array([0.40529,  0.40529,  0.40529])},
+       lamdajk =  {1: np.array([0.40529,  0.40529,  0.40529])},
        
        #specific detector response functions
        detectors={"N": {"kp": 0.1, "lp": 10e-6, "kd": 0.1, "ld": 10e-6},
@@ -278,8 +278,28 @@ mpkdata.add(r3)
 
 mpkdata.validate()
 
-#test data object interpolator
-tstData = mpkdata.evaluate(hrod=30)
+#tstData = mpkdata.evaluate(hrod=30)
 
-# use export function to save inputs for future use
-#mtxM = mpkdata.constructmatrix(hrod=0.0)
+
+# -----------------------------------------------------------------------------
+# ----- Solve Initial Conditions ----------------------------------------------
+# -----------------------------------------------------------------------------
+
+#detail time points transient solution should be returned
+timepoints = np.linspace(0.0, 10.0, 100)
+
+#define function that returns rod height as a function of time
+def hrodfunc(t):
+    return 0.0
+
+
+#initialize transient solver
+model = \
+    transientsolver(timepoints=timepoints, kineticdata=mpkdata, hrod=hrodfunc,
+                    hrod0=0.0, verbose=True)
+
+#only solve initial conditions
+model.solve(srcepi=1e-10, keffepi=1e-6, maxitr=100, transtol=1e-10,
+            initialonly=False)
+
+
